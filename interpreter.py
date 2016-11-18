@@ -2,13 +2,15 @@
 
 import re
 
-metadataReg = re.compile(r'^\[(author|date|title):(.+?)\]$', re.IGNORECASE | re.MULTILINE)
-anyTagReg = re.compile(r'^\[\w+(?:,.+?)*?\]$', re.MULTILINE)
+metadataReg = re.compile(r'^\[(author|date|title): *(.+?)\]$', re.IGNORECASE | re.MULTILINE)
 
 codeEnvReg = re.compile(r'```([\w\d]+)*\n(.*?)\n```', re.DOTALL)
+theoremEnvReg = re.compile(r'\[(?:theorem|corollary|lemma)(?:\:(.+?))*(?:, *(\d+))*\]\n((?:(?:\t| {4}).*\n+?)+)', re.IGNORECASE)
 
-mathEnvReg = re.compile(r'$$($*)\n(.*?)\n($*)$$', re.DOTALL)
-math
+mathEnvReg = re.compile(r'$$$\n(.*?)\n$$$', re.DOTALL)
+emphasisReg = re.compile(r'(?:(?<!\*)\*(.*?)\*(?!\*))|(?:(?<!_)_(.*?)_(?!_))')
+boldReg = re.compile(r'(?:\*\*(.*?)\*\*)|(?:__(.*?)__)')
+
 
 def makeHeader(source):
     # Compiled tex string
@@ -36,7 +38,7 @@ def makeHeader(source):
     addLine('\\documentclass{article}')
 
     # Check for user defined included packages
-    tags = re.findall(r'^\[include:([\w\d]+)((?:,[\w\d]+)*?)\]$', source, re.MULTILINE)
+    tags = re.findall(r'^\[include: *([\w\d]+)((?:,[\w\d]+)*?)\]$', source, re.MULTILINE)
     for tag in tags:
         newLib = []
         newLib.append(tag[0])
@@ -71,7 +73,7 @@ def makeHeader(source):
                 addLine(r'\date{{{}}}'.format(tag[1]))
     
     # Define macros/newcommand
-    macros = re.findall(r'^\[macro:(\w+?),(.+?)\]$', source, re.MULTILINE|re.IGNORECASE)
+    macros = re.findall(r'^\[macro:(\w+?), *(.+?)\]$', source, re.MULTILINE|re.IGNORECASE)
     for macro in macros:
         # Find the highest argument number used;
         #   that's the ammount of args required.
@@ -81,6 +83,19 @@ def makeHeader(source):
             numberOfArgs = max(argNums)
         # Make macro
         addLine(r'\newcommand{{\{}}}[{}]{{{}}}'.format(macro[0], numberOfArgs, macro[1]))
+    
+    # Define theorems
+    theorems = theoremEnvReg.findall(source)
+    if len(theorems) > 0:
+        theoremNumber = 0
+        for theorem in theorems:
+            newTheoremCommand = r'\newtheorem{{theorem{}}}'.format(theoremNumber)
+            if theorem[0] != '':
+                newTheoremCommand += r'{{{}}}'.format(theorem[0])
+            if theorem[1] != '':
+                newTheoremCommand += r'[{}]'.format(theorem[1])
+            addLine(newTheoremCommand)
+            theoremNumber += 1
 
     addLine(r'% End of header')
     return compiled.strip()
@@ -102,8 +117,11 @@ def makeBody(source):
     if metadataReg.match(source):
         addLine(r'\maketitle')
     
-    # Get "actual" text, without any metadata tags
-    clearSource = anyTagReg.sub('', source)
+    # "Clear" copu without metadata tags
+    clearSource = metadataReg.sub('', source)
+
+    # Remove macro tags
+    
 
     # Replace all code envs. with lstlisting codes
     clearSource = codeEnvReg.sub(
@@ -120,9 +138,24 @@ r'''
 '''
     , clearSource)
 
+    # Replace all theorem tags with theorem envs.
+    # Matching order from leftmost assures correct theorem name order
+    #   but I'd enjoy something cleaner, while still detatching
+    #   makeHead from makeBody
+    global theoremNumber
+    theoremNumber = -1
+    def replaceWithName(match):
+        global theoremNumber
+        theoremNumber += 1
+        return '\\begin{{theorem{}}}\n{}\\end{{theorem{}}}\n'.format(theoremNumber,match.group(3), theoremNumber)
+    clearSource = theoremEnvReg.sub(replaceWithName, clearSource)
+
+    # Add handled text
+    addLine(clearSource)
+
     addLine(r'\end{document}')
     addLine(r'% End of body.')
 
     return compiled.strip()
 
-print makeBody(open('example.mtx').read())
+print makeBody(open('example.txd').read())

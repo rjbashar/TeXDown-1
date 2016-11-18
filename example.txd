@@ -1,11 +1,27 @@
-[author:Miguel Murça]
-[date:November 10, 2016]
-[macro:constant,\frac{1}{4 \pi \epsilon_0}]
-[macro:withArgs,\frac{#1}{#4}*#2 \cdot #2]
+[author: Miguel Murça]
+[date: November 10, 2016]
+[macro:constant, \frac{1}{4 \pi \epsilon_0}]
+[macro:withArgs, \frac{#1}{#4}*#2 \cdot #2]
+
+[include:newLib,arg,arg]
 
 # This is a section
 
+[theorem:Pythagorean Theorem]
+    A rectangle triangle of sides $a$, $b$ and $c$ must be
+    such that
+    $a^2 + b^2 = c^2$
+
 # This is a subsection
+
+[theorem]
+    Unnammed theorem.
+
+[theorem:Name, 1]
+    A nammed theorem with the counter 1
+
+[lemma, 1]
+    A lemma with the counter 1
 
 This is text,
 and this is still the same paragraph.
