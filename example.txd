@@ -1,0 +1,21 @@
+[author:Miguel Murça]
+[date:November 10, 2016]
+[macro:constant,\frac{1}{4 \pi \epsilon_0}]
+[macro:withArgs,\frac{#1}{#4}*#2 \cdot #2]
+
+# This is a section
+
+# This is a subsection
+
+This is text,
+and this is still the same paragraph.
+
+$$$
+
+e^x = x^e
+
+$$$
+
+```python
+This is some sweet code, right here.
+```
