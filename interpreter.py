@@ -3,13 +3,12 @@
 import re
 
 metadataReg = re.compile(r'^\[(author|date|title): *(.+?)\]\n', re.IGNORECASE | re.MULTILINE)
-
-codeEnvReg = re.compile(r'```([\w\d]+)*\n(.*?)\n```', re.DOTALL)
-theoremEnvReg = re.compile(r'\[(?:theorem|corollary|lemma)(?:\:(.+?))*(?:, *(\d+))*\]\n((?:(?:\t| {4}).*\n+?)+)', re.IGNORECASE)
 macroTagReg = re.compile(r'^\[macro:(\w+?), *(.+?)\]\n', re.MULTILINE|re.IGNORECASE)
 includeTagReg = re.compile(r'^\[include: *([\w\d]+)((?:,[\w\d]+)*?)\]\n', re.MULTILINE)
 
-mathEnvReg = re.compile(r'$$$\n(.*?)\n$$$', re.DOTALL)
+theoremEnvReg = re.compile(r'\[(?:theorem|corollary|lemma)(?:\:(.+?))*(?:, *(\d+))*\]\n((?:(?:\t| {4}).*\n+?)+)', re.IGNORECASE)
+codeEnvReg = re.compile(r'```([\w\d]+)*\n(.*?)\n```', re.DOTALL)
+mathEnvReg = re.compile(r'\$\$\$(.*?)\$\$\$', re.DOTALL)
 emphasisReg = re.compile(r'(?:(?<!\*)\*(.*?)\*(?!\*))|(?:(?<!_)_(.*?)_(?!_))')
 boldReg = re.compile(r'(?:\*\*(.*?)\*\*)|(?:__(.*?)__)')
 
@@ -135,13 +134,11 @@ r'''\\begin{lstlisting}[language=\1]
 \end{lstlisting}''', clearSource)
 
     # Replace all $$$ envs with gather* environments
-    clearSource = mathEnvReg.sub(
-r'''
-\\begin{gather*}
-
-\end{gather*}
-'''
-    , clearSource)
+    def returnGatherEnv(match):
+        return '\\begin{{gather*}}\n{}\n\\end{{gather*}}'.format( ''
+            '\\\\\n'.join(filter(None,match.group(1).split('\n\n')))
+        )
+    clearSource = mathEnvReg.sub(returnGatherEnv, clearSource)
 
     # Replace all theorem tags with theorem envs.
     # Matching order from leftmost assures correct theorem name order
