@@ -2,7 +2,6 @@
 [date: November 10, 2016]
 [macro:constant, \frac{1}{4 \pi \epsilon_0}]
 [macro:withArgs, \frac{#1}{#4}*#2 \cdot #2]
-[include:newLib,arg,arg]
 [include:url]
 
 # This is a section
@@ -22,14 +21,14 @@
 
 ##### Subparagraph
 
-[theorem]
-    Unnammed theorem.
+[Theorem]
+    Unnamed theorem.
 
-[theorem:Name, 1]
-    A nammed theorem with the counter 1
+[theorem:Name]
+    A named theorem
 
-[lemma, 1]
-    A lemma with the counter 1
+[Lemma]
+    A lemma
 
 This is text,
 and this is still the same paragraph.
@@ -43,16 +42,30 @@ __underline__
 
 ** Some //sweet// __nested__ and I mean __//nested//__ formats. **
 
-$$$
+$$$*
 e^x = x^e
 cont eq 1
 
 eq 2
 $$$
 
+$$ y = x + y $$
+
+$$ \cos x $$
+
 ```python
 This is some sweet code, right here.
 ```
 
-You can also type standard LaTeX with nice things
-such as the paragraph space or $\textrm{inline math:}x^2$.
+You can also type standard \LaTeX{} with nice things
+such as the paragraph space or $\textrm{inline math: }x^2$.
+
+. An
+. Unordered
+. List
+    with
+    sub
+    items
+    and
+        sub
+        items

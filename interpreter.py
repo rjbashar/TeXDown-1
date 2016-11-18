@@ -6,9 +6,9 @@ metadataReg = re.compile(r'^\[(author|date|title): *(.+?)\]\n', re.IGNORECASE | 
 macroTagReg = re.compile(r'^\[macro:(\w+?), *(.+?)\]\n', re.MULTILINE|re.IGNORECASE)
 includeTagReg = re.compile(r'^\[include: *([\w\d]+)((?:,[\w\d]+)*?)\]\n', re.MULTILINE)
 
-theoremEnvReg = re.compile(r'\[(?:theorem|corollary|lemma)(?:\:(.+?))*(?:, *(\d+))*\]\n((?:(?:\t| {4}).*\n+?)+)', re.IGNORECASE)
-codeEnvReg = re.compile(r'(```|~~~~)(\S+)*\n(.*?)\n\\1', re.DOTALL)
-mathEnvReg = re.compile(r'\$\$\$(.*?)\$\$\$', re.DOTALL)
+theoremEnvReg = re.compile(r'\[(theorem|corollary|lemma|definition)(?:\:(.+?))*\]\n((?:(?:\t| {4}).*(?:\n|$))+)', re.IGNORECASE)
+codeEnvReg = re.compile(r'(```|~~~~)(\S+)*\n(.*?)\n\1', re.DOTALL)
+mathEnvReg = re.compile(r'\$\$\$(\*)*(.*?)\$\$\$\*?', re.DOTALL)
 
 sectionReg = re.compile(r'(#+)(\*)? +(.+)')
 
@@ -18,7 +18,8 @@ emphasisReg = re.compile(r'(\*|//) *((?:(?!\1).)+?) *\1(?!\1)')
 boldReg = re.compile(r'(\*\*) *((?:(?!\1).)+?) *\1')
 underlinedReg = re.compile(r'(__) *((?:(?!\1).)+?) *\1')
 
-listReg = re.compile(r'((\d*\.|[\*\-+.]) *.+(?:\n|$)((?:\t| {4}).+\n*)*)+')
+ulistReg = re.compile(r'^(?:[\*\-+.] *.+(?:\n|$)(?:(?:\t| {4}).+\n*)*)+', re.MULTILINE)
+olistReg = re.compile(r'^(?:\d+\.? *.+(?:\n|$)(?:(?:\t| {4}).+\n*)*)+', re.MULTILINE)
 
 def makeHeader(source):
     # Compiled tex string
@@ -33,13 +34,13 @@ def makeHeader(source):
 
     # Libs to include in the TeX file.
     # Include some useful predefined ones.
-    includedLibs = [
+    includedLibs = {
         ('inputenc','utf8'),
         ('amsmath',),
         ('amsthm',),
         ('amssymb',),
         ('url',)
-    ]
+    }
 
     # MDTex files are always articles, as they're meant
     #   to be notes.
@@ -52,11 +53,11 @@ def makeHeader(source):
         newLib.append(tag[0])
         if tag[1] != '':
             newLib += tag[1][1:].split(',')
-        includedLibs.append(tuple(newLib))
+        includedLibs.add(tuple(newLib))
     
     # If the code environment is used, include listings
-    if codeEnvReg.match(source):
-        includedLibs.append(('listings',))
+    if codeEnvReg.search(source):
+        includedLibs.add(('listings',))
     
     # Make library includes
     for lib in includedLibs:
@@ -68,19 +69,9 @@ def makeHeader(source):
         includeStr += '{{{}}}'.format(lib[0])
 
         addLine(includeStr)
-
-    # Look for title, author, date tags.
-    metadataTags = metadataReg.findall(source)
-    if len(metadataTags) > 0:
-        for tag in metadataTags:
-            if tag[0] == 'title':
-                addLine(r'\title{{{}}}'.format(tag[1]))
-            elif tag[0] == 'author':
-                addLine(r'\author{{{}}}'.format(tag[1]))
-            elif tag[0] == 'date':
-                addLine(r'\date{{{}}}'.format(tag[1]))
     
     # Define macros/newcommand
+    addLine('')
     macros = macroTagReg.findall(source)
     for macro in macros:
         # Find the highest argument number used;
@@ -93,19 +84,38 @@ def makeHeader(source):
         addLine(r'\newcommand{{\{}}}[{}]{{{}}}'.format(macro[0], numberOfArgs, macro[1]))
     
     # Define theorems
+    addLine('')
     theorems = theoremEnvReg.findall(source)
     if len(theorems) > 0:
         theoremNumber = 0
         for theorem in theorems:
             newTheoremCommand = r'\newtheorem{{theorem{}}}'.format(theoremNumber)
-            if theorem[0] != '':
-                newTheoremCommand += r'{{{}}}'.format(theorem[0])
             if theorem[1] != '':
-                newTheoremCommand += r'[{}]'.format(theorem[1])
+                newTheoremCommand += r'{{{}}}'.format(theorem[1])
+            else:
+                newTheoremCommand += r'{{{}}}'.format(theorem[0].lower().capitalize())
             addLine(newTheoremCommand)
             theoremNumber += 1
 
+    # Look for title, author, date tags.
+    #   LaTeX requires all or none.
+    addLine('')
+    metadataTags = metadataReg.findall(source)
+    if len(metadataTags) > 0:
+        title, author, date = '', '', ''
+        for tag in metadataTags:
+            if tag[0] == 'title':
+                title = tag[1]
+            elif tag[0] == 'author':
+                author = tag[1]
+            elif tag[0] == 'date':
+                date = tag[1]
+        addLine(r'\title{{{}}}'.format(title))
+        addLine(r'\author{{{}}}'.format(author))
+        addLine(r'\date{{{}}}'.format(date))
+
     addLine(r'% End of header')
+    addLine('')
     return compiled.strip()
 
 
@@ -119,7 +129,9 @@ def makeBody(source):
             compiled += line + '\n'
     
     addLine(r'% Start of body.')
+    addLine('')
     addLine(r'\begin{document}')
+    addLine('')
 
     # If any metadata was specified, make title page.
     if metadataReg.match(source):
@@ -145,21 +157,25 @@ def makeBody(source):
             5:'subparagraph'
         }
         sectionType = depthKey.get(sectionDepth, 'subparagraph')
-        return r'\{{{}}}{}{{{}}}'.format(sectionType, '' if match.group(2) is None else '*', match.group(3))
+        return r'\{}{}{{{}}}'.format(sectionType, '' if match.group(2) is None else '*', match.group(3))
     clearSource = sectionReg.sub(makeSection, clearSource)
 
     # Replace all code envs. with lstlisting codes
     def makelstlisting(match):
-        language = r'[language={}]'.format(match(2) if match(2) is not None else '')
-        return r'''\\begin{lstlisting}{}
-\3
-\end{lstlisting}'''.format(language)
+        language = r'[language={}]'.format(match.group(2) if match.group(2) is not None else '')
+        return r'''\begin{{lstlisting}}{}
+{}
+\end{{lstlisting}}'''.format(language, match.group(3))
     clearSource = codeEnvReg.sub(makelstlisting, clearSource)
 
-    # Replace all $$$ envs with gather* environments
+    # Replace all $$$ envs with gather environments
+    #   and $$$* with gather* environements
     def returnGatherEnv(match):
-        return '\\begin{{gather*}}\n{}\n\\end{{gather*}}'.format( ''
-            '\\\\\n'.join(filter(None,match.group(1).split('\n\n')))
+        return '\\begin{{gather{star}}}\n{}\n\\end{{gather{star}}}'.format(
+            '\\\\\n'.join(
+                map(lambda eq: ' '.join(eq.split('\n')), match.group(2).split('\n\n'))
+            ).strip(),
+            star = '*' if match.group(1) is not None else ''
         )
     clearSource = mathEnvReg.sub(returnGatherEnv, clearSource)
 
@@ -180,6 +196,38 @@ def makeBody(source):
     clearSource = emphasisReg.sub(r'\emph{\2}', clearSource)
     clearSource = underlinedReg.sub(r'\underline{\2}', clearSource)
 
+    # Make lists
+    def makeUnorderedList(match):
+        output = ''
+        curDepth = -1
+        for line in match.group(0).split('\n'):
+            depth = 0
+            contentStart = 0
+            for char in line:
+                if char not in (' ','\t'):
+                    break
+                if char == ' ':
+                    depth += 1
+                elif char == '\t':
+                    depth += 4
+                contentStart += 1
+            depth/=4
+
+            while depth > curDepth:
+                output += '\\begin{itemize}\n'
+                curDepth = depth
+            while depth < curDepth:
+                output += '\\end{itemize}\n'
+                curDepth -= 1
+            
+            output += '\\item {}\n'.format(re.search('(?:[\*\-+.]?[ \t]*)?(.+)', line).group(1))
+        while curDepth > -1:
+            output += '\\end{itemize}\n'
+            curDepth -= 1
+        return output
+
+    clearSource = ulistReg.sub(makeUnorderedList, clearSource)
+
     # Add handled text
     addLine(clearSource)
 
@@ -188,4 +236,9 @@ def makeBody(source):
 
     return compiled.strip()
 
-print makeBody(open('example.txd').read())
+output = open('output.tex', 'w')
+inFile = open('example.txd').read()
+
+output.write(makeHeader(inFile))
+output.write('\n')
+output.write(makeBody(inFile))
