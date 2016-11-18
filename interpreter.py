@@ -2,10 +2,12 @@
 
 import re
 
-metadataReg = re.compile(r'^\[(author|date|title): *(.+?)\]$', re.IGNORECASE | re.MULTILINE)
+metadataReg = re.compile(r'^\[(author|date|title): *(.+?)\]\n', re.IGNORECASE | re.MULTILINE)
 
 codeEnvReg = re.compile(r'```([\w\d]+)*\n(.*?)\n```', re.DOTALL)
 theoremEnvReg = re.compile(r'\[(?:theorem|corollary|lemma)(?:\:(.+?))*(?:, *(\d+))*\]\n((?:(?:\t| {4}).*\n+?)+)', re.IGNORECASE)
+macroTagReg = re.compile(r'^\[macro:(\w+?), *(.+?)\]\n', re.MULTILINE|re.IGNORECASE)
+includeTagReg = re.compile(r'^\[include: *([\w\d]+)((?:,[\w\d]+)*?)\]\n', re.MULTILINE)
 
 mathEnvReg = re.compile(r'$$$\n(.*?)\n$$$', re.DOTALL)
 emphasisReg = re.compile(r'(?:(?<!\*)\*(.*?)\*(?!\*))|(?:(?<!_)_(.*?)_(?!_))')
@@ -38,7 +40,7 @@ def makeHeader(source):
     addLine('\\documentclass{article}')
 
     # Check for user defined included packages
-    tags = re.findall(r'^\[include: *([\w\d]+)((?:,[\w\d]+)*?)\]$', source, re.MULTILINE)
+    tags = includeTagReg.findall(source)
     for tag in tags:
         newLib = []
         newLib.append(tag[0])
@@ -73,7 +75,7 @@ def makeHeader(source):
                 addLine(r'\date{{{}}}'.format(tag[1]))
     
     # Define macros/newcommand
-    macros = re.findall(r'^\[macro:(\w+?), *(.+?)\]$', source, re.MULTILINE|re.IGNORECASE)
+    macros = macroTagReg.findall(source)
     for macro in macros:
         # Find the highest argument number used;
         #   that's the ammount of args required.
@@ -117,11 +119,14 @@ def makeBody(source):
     if metadataReg.match(source):
         addLine(r'\maketitle')
     
-    # "Clear" copu without metadata tags
+    # "Clear" source copy without metadata tags
     clearSource = metadataReg.sub('', source)
 
     # Remove macro tags
-    
+    clearSource = macroTagReg.sub('', clearSource)
+
+    # Remove include tags
+    clearSource = includeTagReg.sub('', clearSource)
 
     # Replace all code envs. with lstlisting codes
     clearSource = codeEnvReg.sub(

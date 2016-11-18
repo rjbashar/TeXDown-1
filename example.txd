@@ -2,7 +2,6 @@
 [date: November 10, 2016]
 [macro:constant, \frac{1}{4 \pi \epsilon_0}]
 [macro:withArgs, \frac{#1}{#4}*#2 \cdot #2]
-
 [include:newLib,arg,arg]
 
 # This is a section
