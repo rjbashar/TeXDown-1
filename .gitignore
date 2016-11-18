@@ -1,3 +1,4 @@
 .vscode/
 *.synctex.gz
 *.pdf
+*.aux

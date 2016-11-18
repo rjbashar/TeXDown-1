@@ -197,36 +197,39 @@ def makeBody(source):
     clearSource = underlinedReg.sub(r'\underline{\2}', clearSource)
 
     # Make lists
-    def makeUnorderedList(match):
-        output = ''
-        curDepth = -1
-        for line in match.group(0).split('\n'):
-            depth = 0
-            contentStart = 0
-            for char in line:
-                if char not in (' ','\t'):
-                    break
-                if char == ' ':
-                    depth += 1
-                elif char == '\t':
-                    depth += 4
-                contentStart += 1
-            depth/=4
+    def makeList(group, elemRegex):
+        def makeGroupList(match):
+            output = ''
+            curDepth = -1
+            for line in filter(None, match.group(0).split('\n')):
+                depth = 0
+                contentStart = 0
+                for char in line:
+                    if char not in (' ','\t'):
+                        break
+                    if char == ' ':
+                        depth += 1
+                    elif char == '\t':
+                        depth += 4
+                    contentStart += 1
+                depth/=4
 
-            while depth > curDepth:
-                output += '\\begin{itemize}\n'
-                curDepth = depth
-            while depth < curDepth:
-                output += '\\end{itemize}\n'
+                while depth > curDepth:
+                    output += '\\begin{{{}}}\n'.format(group)
+                    curDepth = depth
+                while depth < curDepth:
+                    output += '\\end{{{}}}\n'.format(group)
+                    curDepth -= 1
+                
+                output += '\\item {}\n'.format(re.search(elemRegex, line).group(1))
+            while curDepth > -1:
+                output += '\\end{{{}}}\n'.format(group)
                 curDepth -= 1
-            
-            output += '\\item {}\n'.format(re.search('(?:[\*\-+.]?[ \t]*)?(.+)', line).group(1))
-        while curDepth > -1:
-            output += '\\end{itemize}\n'
-            curDepth -= 1
-        return output
+            return output
+        return makeGroupList
 
-    clearSource = ulistReg.sub(makeUnorderedList, clearSource)
+    clearSource = ulistReg.sub(makeList('itemize', r'(?:[\*\-+.]?[ \t]*)?(.+)'), clearSource)
+    clearSource = olistReg.sub(makeList('enumerate', r'(?:(?:\d+\.?)|[ \t])* *(.+)'), clearSource)
 
     # Add handled text
     addLine(clearSource)
