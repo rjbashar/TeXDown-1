@@ -34,13 +34,20 @@
 This is text,
 and this is still the same paragraph.
 
-$$$
+** BOLD **
 
+* emphasis *
+// italics (same as emphasis) //
+
+__underline__
+
+** Some //sweet// __nested__ and I mean __//nested//__ formats. **
+
+$$$
 e^x = x^e
 cont eq 1
 
 eq 2
-
 $$$
 
 ```python

@@ -7,14 +7,18 @@ macroTagReg = re.compile(r'^\[macro:(\w+?), *(.+?)\]\n', re.MULTILINE|re.IGNOREC
 includeTagReg = re.compile(r'^\[include: *([\w\d]+)((?:,[\w\d]+)*?)\]\n', re.MULTILINE)
 
 theoremEnvReg = re.compile(r'\[(?:theorem|corollary|lemma)(?:\:(.+?))*(?:, *(\d+))*\]\n((?:(?:\t| {4}).*\n+?)+)', re.IGNORECASE)
-codeEnvReg = re.compile(r'```([\w\d]+)*\n(.*?)\n```', re.DOTALL)
+codeEnvReg = re.compile(r'(```|~~~~)(\S+)*\n(.*?)\n\\1', re.DOTALL)
 mathEnvReg = re.compile(r'\$\$\$(.*?)\$\$\$', re.DOTALL)
 
 sectionReg = re.compile(r'(#+)(\*)? +(.+)')
 
-emphasisReg = re.compile(r'(?:(?<!\*)\*(.*?)\*(?!\*))|(?:(?<!_)_(.*?)_(?!_))')
-boldReg = re.compile(r'(?:\*\*(.*?)\*\*)|(?:__(.*?)__)')
+# These 3 could probably be fused and then get context from \1,
+#   but it's much safer to have reg #1 and #2 separated
+emphasisReg = re.compile(r'(\*|//) *((?:(?!\1).)+?) *\1(?!\1)')
+boldReg = re.compile(r'(\*\*) *((?:(?!\1).)+?) *\1')
+underlinedReg = re.compile(r'(__) *((?:(?!\1).)+?) *\1')
 
+listReg = re.compile(r'((\d*\.|[\*\-+.]) *.+(?:\n|$)((?:\t| {4}).+\n*)*)+')
 
 def makeHeader(source):
     # Compiled tex string
@@ -145,10 +149,12 @@ def makeBody(source):
     clearSource = sectionReg.sub(makeSection, clearSource)
 
     # Replace all code envs. with lstlisting codes
-    clearSource = codeEnvReg.sub(
-r'''\\begin{lstlisting}[language=\1]
-\2
-\end{lstlisting}''', clearSource)
+    def makelstlisting(match):
+        language = r'[language={}]'.format(match(2) if match(2) is not None else '')
+        return r'''\\begin{lstlisting}{}
+\3
+\end{lstlisting}'''.format(language)
+    clearSource = codeEnvReg.sub(makelstlisting, clearSource)
 
     # Replace all $$$ envs with gather* environments
     def returnGatherEnv(match):
@@ -168,6 +174,11 @@ r'''\\begin{lstlisting}[language=\1]
         theoremNumber += 1
         return '\\begin{{theorem{}}}\n{}\\end{{theorem{}}}\n'.format(theoremNumber,match.group(3), theoremNumber)
     clearSource = theoremEnvReg.sub(replaceWithName, clearSource)
+
+    # Make emphasis, bolds and underline
+    clearSource = boldReg.sub(r'\\textbf{\2}', clearSource)
+    clearSource = emphasisReg.sub(r'\emph{\2}', clearSource)
+    clearSource = underlinedReg.sub(r'\underline{\2}', clearSource)
 
     # Add handled text
     addLine(clearSource)
