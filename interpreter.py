@@ -9,6 +9,9 @@ includeTagReg = re.compile(r'^\[include: *([\w\d]+)((?:,[\w\d]+)*?)\]\n', re.MUL
 theoremEnvReg = re.compile(r'\[(?:theorem|corollary|lemma)(?:\:(.+?))*(?:, *(\d+))*\]\n((?:(?:\t| {4}).*\n+?)+)', re.IGNORECASE)
 codeEnvReg = re.compile(r'```([\w\d]+)*\n(.*?)\n```', re.DOTALL)
 mathEnvReg = re.compile(r'\$\$\$(.*?)\$\$\$', re.DOTALL)
+
+sectionReg = re.compile(r'(#+)(\*)? +(.+)')
+
 emphasisReg = re.compile(r'(?:(?<!\*)\*(.*?)\*(?!\*))|(?:(?<!_)_(.*?)_(?!_))')
 boldReg = re.compile(r'(?:\*\*(.*?)\*\*)|(?:__(.*?)__)')
 
@@ -126,6 +129,20 @@ def makeBody(source):
 
     # Remove include tags
     clearSource = includeTagReg.sub('', clearSource)
+
+    # Make all (sub)*sections
+    def makeSection(match):
+        sectionDepth = match.group(1).count('#')
+        depthKey = {
+            1:'section',
+            2:'subsection',
+            3:'subsubsection',
+            4:'paragraph',
+            5:'subparagraph'
+        }
+        sectionType = depthKey.get(sectionDepth, 'subparagraph')
+        return r'\{{{}}}{}{{{}}}'.format(sectionType, '' if match.group(2) is None else '*', match.group(3))
+    clearSource = sectionReg.sub(makeSection, clearSource)
 
     # Replace all code envs. with lstlisting codes
     clearSource = codeEnvReg.sub(
