@@ -7,7 +7,7 @@ macroTagReg = re.compile(r'^\[macro:(\w+?), *(.+?)\]\n', re.MULTILINE|re.IGNOREC
 includeTagReg = re.compile(r'^\[include: *([\w\d]+)((?:,[\w\d]+)*?)\]\n', re.MULTILINE)
 
 theoremEnvReg = re.compile(r'\[(theorem|corollary|lemma|definition)(?:\:(.+?))*\]\n((?:(?:\t| {4}).*(?:\n|$))+)', re.IGNORECASE)
-codeEnvReg = re.compile(r'(```|~~~~)(\S+)*\n(.*?)\n\1', re.DOTALL)
+codeEnvReg = re.compile(r'(```|~~~~)([\w\d]+)*\n(.*?)\n\1([^\n]+)*', re.DOTALL)
 mathEnvReg = re.compile(r'\$\$\$(\*)*(.*?)\$\$\$\*?', re.DOTALL)
 
 sectionReg = re.compile(r'(#+)(\*)? +(.+)')
@@ -17,9 +17,12 @@ sectionReg = re.compile(r'(#+)(\*)? +(.+)')
 emphasisReg = re.compile(r'(\*|//) *((?:(?!\1).)+?) *\1(?!\1)')
 boldReg = re.compile(r'(\*\*) *((?:(?!\1).)+?) *\1')
 underlinedReg = re.compile(r'(__) *((?:(?!\1).)+?) *\1')
+inlineCodeReg = re.compile(r'`(.*?)`')
 
-ulistReg = re.compile(r'^(?:[\*\-+.] *.+(?:\n|$)(?:(?:\t| {4}).+\n*)*)+', re.MULTILINE)
+ulistReg = re.compile(r'^(?:[\*\-+.] +.+(?:\n|$)(?:(?:\t| {4}).+\n*)*)+', re.MULTILINE)
 olistReg = re.compile(r'^(?:\d+\.? *.+(?:\n|$)(?:(?:\t| {4}).+\n*)*)+', re.MULTILINE)
+
+hlineReg = re.compile(r'^-{3,}|\+{3,}|\*{3,}$', re.MULTILINE)
 
 def makeHeader(source):
     # Compiled tex string
@@ -56,7 +59,7 @@ def makeHeader(source):
         includedLibs.add(tuple(newLib))
     
     # If the code environment is used, include listings
-    if codeEnvReg.search(source):
+    if codeEnvReg.search(source) or inlineCodeReg.search(source):
         includedLibs.add(('listings',))
     
     # Make library includes
@@ -162,13 +165,17 @@ def makeBody(source):
 
     # Replace all code envs. with lstlisting codes
     def makelstlisting(match):
-        language = r'[language={}]'.format(match.group(2) if match.group(2) is not None else '')
-        return r'''\begin{{lstlisting}}{}
+        language = r'language={}'.format(match.group(2)) if match.group(2) is not None else ''
+        caption = r'caption={}'.format(match.group(4)) if match.group(4) is not None else ''
+        return r'''\begin{{lstlisting}}[{}]
 {}
-\end{{lstlisting}}'''.format(language, match.group(3))
+\end{{lstlisting}}'''.format(','.join([language,caption]), match.group(3))
     clearSource = codeEnvReg.sub(makelstlisting, clearSource)
 
-    # Replace all $$$ envs with gather environments
+    # Make inline code
+    clearSource = inlineCodeReg.sub(r'\\lstinline[columns=fixed]{\1}', clearSource)
+
+    # Replace all $$$ envs with gathered environments
     #   and $$$* with gather* environements
     def returnGatherEnv(match):
         return '\\begin{{gather{star}}}\n{}\n\\end{{gather{star}}}'.format(
@@ -230,6 +237,9 @@ def makeBody(source):
 
     clearSource = ulistReg.sub(makeList('itemize', r'(?:[\*\-+.]?[ \t]*)?(.+)'), clearSource)
     clearSource = olistReg.sub(makeList('enumerate', r'(?:(?:\d+\.?)|[ \t])* *(.+)'), clearSource)
+
+    # Make hotizontal line breaks
+    clearSource = hlineReg.sub(r'\noindent\makebox[\linewidth]{\rule{\paperwidth}{0.4pt}}', clearSource)
 
     # Add handled text
     addLine(clearSource)

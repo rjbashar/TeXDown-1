@@ -67,6 +67,12 @@ and this is still the same paragraph.
 
 \textbf{Some \emph{sweet} \underline{nested} and I mean \underline{\emph{nested}} formats.}
 
+\begin{gather}
+\textrm{I can haz numbering?}
+\end{gather}
+
+\lstinline[columns=fixed]{How about inline code?}
+
 \begin{gather*}
 e^x = x^e cont eq 1\\
 eq 2
@@ -76,9 +82,22 @@ $$ y = x + y $$
 
 $$ \cos x $$
 
-\begin{lstlisting}[language=python]
+\begin{lstlisting}[language=python,]
 This is some sweet code, right here.
 \end{lstlisting}
+
+\begin{lstlisting}[language=python,caption=This is code with a caption.]
+myStr = 'example'
+def longExample:
+    foo = input()
+    bar = raw_input()
+
+    for i in range(1,input()):
+        pass
+    \section{Long}
+\end{lstlisting}
+
+\hline
 
 You can also type standard \LaTeX{} with nice things
 such as the paragraph space or $\textrm{inline math: }x^2$.
