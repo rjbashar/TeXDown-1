@@ -10,7 +10,7 @@ theoremEnvReg = re.compile(r'\[(theorem|corollary|lemma|definition)(?:\:(.+?))*\
 codeEnvReg = re.compile(r'(```|~~~~)([\w\d]+)*\n(.*?)\n\1([^\n]+)*', re.DOTALL)
 mathEnvReg = re.compile(r'\$\$\$(\*)*(.*?)\$\$\$\*?', re.DOTALL)
 
-sectionReg = re.compile(r'(#+)(\*)? +(.+)')
+sectionReg = re.compile(r'^(#+)(\*)? +(.+)', re.MULTILINE)
 
 # These 3 could probably be fused and then get context from \1,
 #   but it's much safer to have reg #1 and #2 separated
@@ -24,15 +24,15 @@ olistReg = re.compile(r'^(?:\d+\.? *.+(?:\n|$)(?:(?:\t| {4}).+\n*)*)+', re.MULTI
 
 hlineReg = re.compile(r'^-{3,}|\+{3,}|\*{3,}$', re.MULTILINE)
 
+tableReg = re.compile(r'(?:\|? *[\w\d :-]+? *(?:\| *[\w\d :-]+ *)+\|?(?:$|\n))+')
+
 def makeHeader(source):
     # Compiled tex string
-    global compiled
-    compiled = ''
     def addLine(*args):
-        global compiled
         for line in args:
-            compiled += line + '\n'
-    
+            addLine.compiled += line + '\n'
+    addLine.compiled = ''
+
     addLine(r'% Start of header.')
 
     # Libs to include in the TeX file.
@@ -119,17 +119,15 @@ def makeHeader(source):
 
     addLine(r'% End of header')
     addLine('')
-    return compiled.strip()
+    return addLine.compiled.strip()
 
 
 def makeBody(source):
     # Valid LaTeX for body of document, in string form.
-    global compiled
-    compiled = ''
     def addLine(*args):
-        global compiled
         for line in args:
-            compiled += line + '\n'
+            addLine.compiled += line + '\n'
+    addLine.compiled = ''
     
     addLine(r'% Start of body.')
     addLine('')
@@ -149,27 +147,16 @@ def makeBody(source):
     # Remove include tags
     clearSource = includeTagReg.sub('', clearSource)
 
-    # Make all (sub)*sections
-    def makeSection(match):
-        sectionDepth = match.group(1).count('#')
-        depthKey = {
-            1:'section',
-            2:'subsection',
-            3:'subsubsection',
-            4:'paragraph',
-            5:'subparagraph'
-        }
-        sectionType = depthKey.get(sectionDepth, 'subparagraph')
-        return r'\{}{}{{{}}}'.format(sectionType, '' if match.group(2) is None else '*', match.group(3))
-    clearSource = sectionReg.sub(makeSection, clearSource)
-
     # Replace all code envs. with lstlisting codes
+    #   HACK: To prevent further parsing of contents, offset
+    #       every line with a single space, to later remove.
     def makelstlisting(match):
         language = r'language={}'.format(match.group(2)) if match.group(2) is not None else ''
         caption = r'caption={}'.format(match.group(4)) if match.group(4) is not None else ''
+        code = re.sub(r'^#', r'\#', match.group(3), 0, re.MULTILINE)
         return r'''\begin{{lstlisting}}[{}]
 {}
-\end{{lstlisting}}'''.format(','.join([language,caption]), match.group(3))
+\end{{lstlisting}}'''.format(','.join([language,caption]), code)
     clearSource = codeEnvReg.sub(makelstlisting, clearSource)
 
     # Make inline code
@@ -202,6 +189,26 @@ def makeBody(source):
     clearSource = boldReg.sub(r'\\textbf{\2}', clearSource)
     clearSource = emphasisReg.sub(r'\emph{\2}', clearSource)
     clearSource = underlinedReg.sub(r'\underline{\2}', clearSource)
+
+    # Make all (sub)*sections
+    #   NOTE: This should only be done after code env parsing!,
+    #       as some languages (such as python) use # as a comment char
+    #       and the regex takes this into consideration (hackish-ly)
+    def makeSection(match):
+        sectionDepth = match.group(1).count('#')
+        depthKey = {
+            1:'section',
+            2:'subsection',
+            3:'subsubsection',
+            4:'paragraph',
+            5:'subparagraph'
+        }
+        sectionType = depthKey.get(sectionDepth, 'subparagraph')
+        return r'\{}{}{{{}}}'.format(sectionType, '' if match.group(2) is None else '*', match.group(3))
+    clearSource = sectionReg.sub(makeSection, clearSource) 
+
+    # Escape \# to #, as these were introduced to remove code/section collision
+    clearSource = clearSource.replace(r'\#', '#')
 
     # Make lists
     def makeList(group, elemRegex):
@@ -241,17 +248,12 @@ def makeBody(source):
     # Make hotizontal line breaks
     clearSource = hlineReg.sub(r'\\noindent\\makebox[\\linewidth]{\\rule{\\textwidth}{0.4pt}}', clearSource)
 
+    # Make 
+
     # Add handled text
     addLine(clearSource)
 
     addLine(r'\end{document}')
     addLine(r'% End of body.')
 
-    return compiled.strip()
-
-output = open('output.tex', 'w')
-inFile = open('cleanExample.txd').read()
-
-output.write(makeHeader(inFile))
-output.write('\n')
-output.write(makeBody(inFile))
+    return addLine.compiled.strip()

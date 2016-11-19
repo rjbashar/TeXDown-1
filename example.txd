@@ -60,6 +60,7 @@ $$ y = x + y $$
 $$ \cos x $$
 
 ```python
+# SHOULD BE A COMMENT
 This is some sweet code, right here.
 ```
 
