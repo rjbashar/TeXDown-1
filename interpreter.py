@@ -239,7 +239,7 @@ def makeBody(source):
     clearSource = olistReg.sub(makeList('enumerate', r'(?:(?:\d+\.?)|[ \t])* *(.+)'), clearSource)
 
     # Make hotizontal line breaks
-    clearSource = hlineReg.sub(r'\noindent\makebox[\linewidth]{\rule{\paperwidth}{0.4pt}}', clearSource)
+    clearSource = hlineReg.sub(r'\\noindent\\makebox[\\linewidth]{\\rule{\\textwidth}{0.4pt}}', clearSource)
 
     # Add handled text
     addLine(clearSource)
@@ -250,7 +250,7 @@ def makeBody(source):
     return compiled.strip()
 
 output = open('output.tex', 'w')
-inFile = open('example.txd').read()
+inFile = open('cleanExample.txd').read()
 
 output.write(makeHeader(inFile))
 output.write('\n')

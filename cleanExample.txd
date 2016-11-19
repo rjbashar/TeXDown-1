@@ -1,0 +1,53 @@
+[title:An example on \LaTeX{}Down]
+[author:Miguel Murça]
+
+This is some text.
+
+# Some available objects
+
+## Section
+This is a section.
+
+(It's actually a subsection)
+
+## List
+
+This is a list:
+
+1. First
+2. Second
+    Sub
+
+## Equations
+
+Unnumbered
+
+$$$*
+x^2 = 2
+
+b^2 + a^2 = c
+
+e
+$$$
+
+And numbered
+
+$$$
+e^{-\pi i} = -1 (?)
+
+x = \int_0^1 x dx
+$$$
+
+## Ruler separator
+
+Let's get a ruler separator in here:
+
+---
+
+Or
+
+***
+
+Or even
+
++++

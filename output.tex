@@ -1,23 +1,16 @@
 % Start of header.
 \documentclass{article}
-\usepackage{url}
-\usepackage{amsmath}
-\usepackage[utf8]{inputenc}
 \usepackage{amssymb}
-\usepackage{listings}
+\usepackage{amsmath}
+\usepackage{url}
+\usepackage[utf8]{inputenc}
 \usepackage{amsthm}
 
-\newcommand{\constant}[0]{\frac{1}{4 \pi \epsilon_0}}
-\newcommand{\withArgs}[4]{\frac{#1}{#4}*#2 \cdot #2}
 
-\newtheorem{theorem0}{Pythagorean Theorem}
-\newtheorem{theorem1}{Theorem}
-\newtheorem{theorem2}{Name}
-\newtheorem{theorem3}{Lemma}
 
-\title{}
+\title{An example on \LaTeX{}Down}
 \author{Miguel Murça}
-\date{November 10, 2016}
+\date{}
 % End of header
 % Start of body.
 
@@ -25,107 +18,56 @@
 
 \maketitle
 
-\section{This is a section}
+This is some text.
 
-\begin{theorem0}
-    A rectangle triangle of sides $a$, $b$ and $c$ must be
-    such that
-    $a^2 + b^2 = c^2$
-\end{theorem0}
+\section{Some available objects}
 
-\subsection{This is a subsection}
+\subsection{Section}
+This is a section.
 
-\subsection*{This is an unnumbered subsection}
+(It's actually a subsection)
 
-\subsubsection{Subsubsection}
+\subsection{List}
 
-\paragraph{Paragraph}
+This is a list:
 
-\subparagraph{Subparagraph}
+\begin{enumerate}
+\item First
+\item Second
+\begin{enumerate}
+\item Sub
+\end{enumerate}
+\end{enumerate}
+\subsection{Equations}
 
-\begin{theorem1}
-    Unnamed theorem.
-\end{theorem1}
-
-\begin{theorem2}
-    A named theorem
-\end{theorem2}
-
-\begin{theorem3}
-    A lemma
-\end{theorem3}
-
-This is text,
-and this is still the same paragraph.
-
-\textbf{BOLD}
-
-\emph{emphasis}
-\emph{italics (same as emphasis)}
-
-\underline{underline}
-
-\textbf{Some \emph{sweet} \underline{nested} and I mean \underline{\emph{nested}} formats.}
-
-\begin{gather}
-\textrm{I can haz numbering?}
-\end{gather}
-
-\lstinline[columns=fixed]{How about inline code?}
+Unnumbered
 
 \begin{gather*}
-e^x = x^e cont eq 1\\
-eq 2
+x^2 = 2\\
+b^2 + a^2 = c\\
+e
 \end{gather*}
 
-$$ y = x + y $$
+And numbered
 
-$$ \cos x $$
+\begin{gather}
+e^{-\pi i} = -1 (?)\\
+x = \int_0^1 x dx
+\end{gather}
 
-\begin{lstlisting}[language=python,]
-This is some sweet code, right here.
-\end{lstlisting}
+\subsection{Ruler separator}
 
-\begin{lstlisting}[language=python,caption=This is code with a caption.]
-myStr = 'example'
-def longExample:
-    foo = input()
-    bar = raw_input()
+Let's get a ruler separator in here:
 
-    for i in range(1,input()):
-        pass
-    \section{Long}
-\end{lstlisting}
+\noindent\makebox[\linewidth]{\rule{\textwidth}{0.4pt}}
 
-\hline
+Or
 
-You can also type standard \LaTeX{} with nice things
-such as the paragraph space or $\textrm{inline math: }x^2$.
+\noindent\makebox[\linewidth]{\rule{\textwidth}{0.4pt}}
 
-\begin{itemize}
-\item An
-\item Unordered
-\item List
-\begin{itemize}
-\item with
-\item sub
-\item items
-\item and
-\begin{itemize}
-\item sub
-\item items
-\end{itemize}
-\end{itemize}
-\end{itemize}
-\begin{enumerate}
-\item A
-\item Really
-\begin{enumerate}
-\item Sexy
-\end{enumerate}
-\item Ordered
-\item List
-\end{enumerate}
+Or even
+
+\noindent\makebox[\linewidth]{\rule{\textwidth}{0.4pt}}
 
 \end{document}
 % End of body.
