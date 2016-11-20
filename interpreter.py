@@ -26,7 +26,7 @@ olistReg = re.compile(r'^(?:\d+\. *.+(?:\n|$)(?:(?:\t| {4}).+\n*)*)+', re.MULTIL
 hlineReg = re.compile(r'^-{3,}|\+{3,}|\*{3,}$', re.MULTILINE)
 
 # Markdown table regex
-prettyTableReg = re.compile(r'^ *\|(.+)\n *\|( *[-:]+[-| :]*)\n((?: *\|.*(?:\n|$|\|))*)', re.MULTILINE)
+prettyTableReg = re.compile(r'^ *\|(.+)\n *\|( *[-:]+[-| :]*)\n((?: *\|.*(?:\n|$|\|))*)(?:(?:\t| {4})+(.+))?', re.MULTILINE)
 uglyTableReg = re.compile(r'^ *(\S.*\|.*)\n *([-:]+ *\|[-| :]*)\n((?:.*\|.*(?:\n|$))*)', re.MULTILINE)
 tableAlignReg = re.compile(r':?-{3,}:?')
 
@@ -263,7 +263,8 @@ def makeBody(source):
 
     # Make tables
     def makeTables(match):
-        out = r'''\begingroup
+        out = r'''\begin{table}[h!]
+\begingroup
 \setlength{\tabcolsep}{10pt}
 \renewcommand{\arraystretch}{1.5}'''
 
@@ -308,11 +309,21 @@ def makeBody(source):
             for i in range(len(elems)):
                 elems[i] = elems[i].strip()
             out += ' & '.join(elems) + ' \\\\ \\hline\n'
+        
+        # Find caption if available
+        caption = '\\caption{{{}}}\n'.format(match.group(4)) if (len(match.groups()) > 3 and match.group(4) is not None) else ''
 
-        out += '\\end{tabular}\n\\endgroup\n'
+        out += r'''\end{{tabular}}
+\label{{table{}}}
+{}\endgroup
+\end{{table}}
+'''.format(makeTables.tableNumber, caption)
+
+        makeTables.tableNumber += 1
 
         return out
-    
+    makeTables.tableNumber = 0
+
     clearSource = prettyTableReg.sub(makeTables, clearSource)
     clearSource = uglyTableReg.sub(makeTables, clearSource)
     

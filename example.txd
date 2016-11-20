@@ -101,7 +101,6 @@ such as the paragraph space or $\textrm{inline math: }x^2$.
 4. List
 
 
-
 | Tables        | Are           | Cool  |
 | ------------- |:-------------:| -----:|
 | col 3 is      | right-aligned | \$1600 |
@@ -109,12 +108,15 @@ such as the paragraph space or $\textrm{inline math: }x^2$.
 | zebra stripes | are neat      |    \$1 |
 
 
-
 Markdown | Less | Pretty
 :--- | --- | ---
 *Still* | `renders` | **nicely**
  1 | 2 | 3
 
+| Pretty | Markdown | Tables |
+| ------ | -------- | ------ |
+| Can    | also     | have   |
+    Captions, as evidenced!
 
 Miguel Murça, creator of TeXDown, said
 > Here is a quote,
