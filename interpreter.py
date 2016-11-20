@@ -17,14 +17,18 @@ sectionReg = re.compile(r'^(#+)(\*)? +(.+)', re.MULTILINE)
 emphasisReg = re.compile(r'(\*|//) *((?:(?!\1).)+?) *\1(?!\1)')
 boldReg = re.compile(r'(\*\*) *((?:(?!\1).)+?) *\1')
 underlinedReg = re.compile(r'(__) *((?:(?!\1).)+?) *\1')
+crossedReg = re.compile(r'(~{2,})(.+)\1')
 inlineCodeReg = re.compile(r'`(.*?)`')
 
 ulistReg = re.compile(r'^(?:[\*\-+.] +.+(?:\n|$)(?:(?:\t| {4}).+\n*)*)+', re.MULTILINE)
-olistReg = re.compile(r'^(?:\d+\.? *.+(?:\n|$)(?:(?:\t| {4}).+\n*)*)+', re.MULTILINE)
+olistReg = re.compile(r'^(?:\d+\. *.+(?:\n|$)(?:(?:\t| {4}).+\n*)*)+', re.MULTILINE)
 
 hlineReg = re.compile(r'^-{3,}|\+{3,}|\*{3,}$', re.MULTILINE)
 
-tableReg = re.compile(r'(?:\|? *[\w\d :-]+? *(?:\| *[\w\d :-]+ *)+\|?(?:$|\n))+')
+# Markdown table regex
+prettyTableReg = re.compile(r'^ *\|(.+)\n *\|( *[-:]+[-| :]*)\n((?: *\|.*(?:\n|$))*)', re.MULTILINE)
+uglyTableReg = re.compile(r'^ *(\S.*\|.*)\n *([-:]+ *\|[-| :]*)\n((?:.*\|.*(?:\n|$))*)', re.MULTILINE)
+tableAlignReg = re.compile(r':?-{3,}:?')
 
 def makeHeader(source):
     # Compiled tex string
@@ -61,7 +65,11 @@ def makeHeader(source):
     # If the code environment is used, include listings
     if codeEnvReg.search(source) or inlineCodeReg.search(source):
         includedLibs.add(('listings',))
-    
+
+    # If strikeout is used, include ulem
+    if crossedReg.search(source):
+        includedLibs.add(('ulem','normalem'))
+
     # Make library includes
     for lib in includedLibs:
         includeStr = r'\usepackage'
@@ -72,7 +80,7 @@ def makeHeader(source):
         includeStr += '{{{}}}'.format(lib[0])
 
         addLine(includeStr)
-    
+
     # Define macros/newcommand
     addLine('')
     macros = macroTagReg.findall(source)
@@ -116,7 +124,7 @@ def makeHeader(source):
         addLine(r'\title{{{}}}'.format(title))
         addLine(r'\author{{{}}}'.format(author))
         addLine(r'\date{{{}}}'.format(date))
-
+    
     addLine(r'% End of header')
     addLine('')
     return addLine.compiled.strip()
@@ -160,7 +168,7 @@ def makeBody(source):
     clearSource = codeEnvReg.sub(makelstlisting, clearSource)
 
     # Make inline code
-    clearSource = inlineCodeReg.sub(r'\\lstinline[columns=fixed]{\1}', clearSource)
+    clearSource = inlineCodeReg.sub(r'\\lstinline[columns=fixed]\$\1$', clearSource)
 
     # Replace all $$$ envs with gathered environments
     #   and $$$* with gather* environements
@@ -185,10 +193,11 @@ def makeBody(source):
         return '\\begin{{theorem{}}}\n{}\\end{{theorem{}}}\n'.format(theoremNumber,match.group(3), theoremNumber)
     clearSource = theoremEnvReg.sub(replaceWithName, clearSource)
 
-    # Make emphasis, bolds and underline
+    # Make emphasis, bolds, underline and crossed out
     clearSource = boldReg.sub(r'\\textbf{\2}', clearSource)
     clearSource = emphasisReg.sub(r'\emph{\2}', clearSource)
     clearSource = underlinedReg.sub(r'\underline{\2}', clearSource)
+    clearSource = crossedReg.sub(r'\sout{\2}', clearSource)
 
     # Make all (sub)*sections
     #   NOTE: This should only be done after code env parsing!,
@@ -205,10 +214,7 @@ def makeBody(source):
         }
         sectionType = depthKey.get(sectionDepth, 'subparagraph')
         return r'\{}{}{{{}}}'.format(sectionType, '' if match.group(2) is None else '*', match.group(3))
-    clearSource = sectionReg.sub(makeSection, clearSource) 
-
-    # Escape \# to #, as these were introduced to remove code/section collision
-    clearSource = clearSource.replace(r'\#', '#')
+    clearSource = sectionReg.sub(makeSection, clearSource)
 
     # Make lists
     def makeList(group, elemRegex):
@@ -246,9 +252,71 @@ def makeBody(source):
     clearSource = olistReg.sub(makeList('enumerate', r'(?:(?:\d+\.?)|[ \t])* *(.+)'), clearSource)
 
     # Make hotizontal line breaks
-    clearSource = hlineReg.sub(r'\\noindent\\makebox[\\linewidth]{\\rule{\\textwidth}{0.4pt}}', clearSource)
+    clearSource = hlineReg.sub(r'\\rule{\\textwidth}{0.4pt}', clearSource)
 
-    # Make 
+    # Make tables
+    def makeTables(match):
+        out = r'''\begingroup
+\setlength{\tabcolsep}{10pt}
+\renewcommand{\arraystretch}{1.5}'''
+
+        out += '\n\\begin{tabular}'
+        lines = match.group(0).splitlines()
+
+        # First determine alignment of each collumn
+        alignments = {}
+        alignmentLines = []
+        maxLen = 0
+        for line in lines:
+            if line[0] == '|':
+                line = line[1:]
+            if line[-1] == '|':
+                line = line[:-1]
+            
+            elems = line.split('|')
+            
+            if len(elems) > maxLen:
+                maxLen = len(elems)
+
+            position = 0
+            for elem in filter(None, elems):
+                if tableAlignReg.search(elem):
+                    if elem.count(':') == 2:
+                        alignments[position] = 'c'
+                    elif elem.find(':') * 1.0 / len(elem) > 0.5:
+                        alignments[position] = 'r'
+                position += 1
+        
+        # Create tags
+        out += '{ |' + '|'.join([alignments.get(i, 'l') for i in range(0,maxLen)]) + '| }'
+        
+        # Create actual table (skipping alignment lines)
+        out += '\n\\hline\n'
+        for line in lines:
+            if line[0] == '|':
+                line = line[1:]
+            if line[-1] == '|':
+                line = line[:-1]
+            
+            if tableAlignReg.search(line):
+                continue
+            elems = line.split('|')
+            for i in range(len(elems)):
+                elems[i] = elems[i].strip()
+            out += ' & '.join(elems) + ' \\\\ \\hline\n'
+
+        out += '\\end{tabular}\n\\endgroup\n'
+
+        return out
+    
+    clearSource = prettyTableReg.sub(makeTables, clearSource)
+    clearSource = uglyTableReg.sub(makeTables, clearSource)
+    
+    # Escape \# to #, as these were introduced to remove code/section collision
+    clearSource = clearSource.replace(r'\#', '#')
+
+    # Escape triple linebreaks as vspaces
+    clearSource = re.sub(r'^\n\n\n', r'\n\\vspace{5mm}\n\n', clearSource, 0, re.MULTILINE)
 
     # Add handled text
     addLine(clearSource)

@@ -42,6 +42,10 @@ __underline__
 
 ** Some //sweet// __nested__ and I mean __//nested//__ formats. **
 
+~~~strikeout~~~
+
+~~strikeout w/ 2~~
+
 $$$
 \textrm{I can haz numbering?}
 $$$
@@ -95,3 +99,18 @@ such as the paragraph space or $\textrm{inline math: }x^2$.
     Sexy
 3. Ordered
 4. List
+
+
+
+| Tables        | Are           | Cool  |
+| ------------- |:-------------:| -----:|
+| col 3 is      | right-aligned | \$1600 |
+| col 2 is      | centered      |   \$12 |
+| zebra stripes | are neat      |    \$1 |
+
+
+
+Markdown | Less | Pretty
+:--- | --- | ---
+*Still* | `renders` | **nicely**
+ 1 | 2 | 3

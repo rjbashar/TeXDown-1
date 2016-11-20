@@ -4,6 +4,7 @@
 \usepackage{amsmath}
 \usepackage[utf8]{inputenc}
 \usepackage{amssymb}
+\usepackage[normalem]{ulem}
 \usepackage{listings}
 \usepackage{amsthm}
 
@@ -67,11 +68,15 @@ and this is still the same paragraph.
 
 \textbf{Some \emph{sweet} \underline{nested} and I mean \underline{\emph{nested}} formats.}
 
+\sout{strikeout}
+
+\sout{strikeout w/ 2}
+
 \begin{gather}
 \textrm{I can haz numbering?}
 \end{gather}
 
-\lstinline[columns=fixed]{How about inline code?}
+\lstinline[columns=fixed]\$How about inline code?$
 
 \begin{gather*}
 e^x = x^e cont eq 1\\
@@ -98,7 +103,7 @@ def longExample:
     # Long
 \end{lstlisting}
 
-\noindent\makebox[\linewidth]{\rule{\textwidth}{0.4pt}}
+\rule{\textwidth}{0.4pt}
 
 You can also type standard \LaTeX{} with nice things
 such as the paragraph space or $\textrm{inline math: }x^2$.
@@ -127,6 +132,33 @@ such as the paragraph space or $\textrm{inline math: }x^2$.
 \item Ordered
 \item List
 \end{enumerate}
+
+\vspace{5mm}
+
+\begingroup
+\setlength{\tabcolsep}{10pt}
+\renewcommand{\arraystretch}{1.5}
+\begin{tabular}{ |l|c|r| }
+\hline
+Tables & Are & Cool \\ \hline
+col 3 is & right-aligned & \$1600 \\ \hline
+col 2 is & centered & \$12 \\ \hline
+zebra stripes & are neat & \$1 \\ \hline
+\end{tabular}
+\endgroup
+
+\vspace{5mm}
+
+\begingroup
+\setlength{\tabcolsep}{10pt}
+\renewcommand{\arraystretch}{1.5}
+\begin{tabular}{ |l|l|l| }
+\hline
+Markdown & Less & Pretty \\ \hline
+\emph{Still} & \lstinline[columns=fixed]\$renders$ & \textbf{nicely} \\ \hline
+1 & 2 & 3 \\ \hline
+\end{tabular}
+\endgroup
 
 \end{document}
 % End of body.

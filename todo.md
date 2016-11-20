@@ -1,5 +1,6 @@
 # TODOs for LaTeXDown:
 
-. Links
-. Images
-. Tables
++ Links
++ Images
++ ~~Tables~~
++ Blockquotes
