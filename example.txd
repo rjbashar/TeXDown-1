@@ -59,9 +59,9 @@ cont eq 1
 eq 2
 $$$
 
-$$ y = x + y $$
+$ y = x + y $
 
-$$ \cos x $$
+$ \cos x $
 
 ```python
 # SHOULD BE A COMMENT
@@ -114,3 +114,9 @@ Markdown | Less | Pretty
 :--- | --- | ---
 *Still* | `renders` | **nicely**
  1 | 2 | 3
+
+
+Miguel Murça, creator of TeXDown, said
+> Here is a quote,
+> made using TeXDown.
+Truly words of wisdom.

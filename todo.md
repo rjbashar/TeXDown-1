@@ -3,4 +3,4 @@
 + Links
 + Images
 + ~~Tables~~
-+ Blockquotes
++ ~~Blockquotes~~

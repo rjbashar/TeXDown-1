@@ -6,6 +6,7 @@
 \usepackage{amssymb}
 \usepackage[normalem]{ulem}
 \usepackage{listings}
+\usepackage{csquotes}
 \usepackage{amsthm}
 
 \newcommand{\constant}[0]{\frac{1}{4 \pi \epsilon_0}}
@@ -25,6 +26,14 @@
 \begin{document}
 
 \maketitle
+
+\vspace{5mm}
+
+
+\vspace{5mm}
+
+
+\vspace{5mm}
 
 \section{This is a section}
 
@@ -76,16 +85,16 @@ and this is still the same paragraph.
 \textrm{I can haz numbering?}
 \end{gather}
 
-\lstinline[columns=fixed]\$How about inline code?$
+\lstinline[columns=fixed]$How about inline code?$
 
 \begin{gather*}
 e^x = x^e cont eq 1\\
 eq 2
 \end{gather*}
 
-$$ y = x + y $$
+$ y = x + y $
 
-$$ \cos x $$
+$ \cos x $
 
 \begin{lstlisting}[language=python,]
 # SHOULD BE A COMMENT
@@ -135,12 +144,13 @@ such as the paragraph space or $\textrm{inline math: }x^2$.
 
 \vspace{5mm}
 
+
 \begingroup
 \setlength{\tabcolsep}{10pt}
 \renewcommand{\arraystretch}{1.5}
-\begin{tabular}{ |l|c|r| }
+\begin{tabular}{ |l|c|r|l| }
 \hline
-Tables & Are & Cool \\ \hline
+Tables & Are & Cool \\ \hline \hline
 col 3 is & right-aligned & \$1600 \\ \hline
 col 2 is & centered & \$12 \\ \hline
 zebra stripes & are neat & \$1 \\ \hline
@@ -149,16 +159,25 @@ zebra stripes & are neat & \$1 \\ \hline
 
 \vspace{5mm}
 
+
 \begingroup
 \setlength{\tabcolsep}{10pt}
 \renewcommand{\arraystretch}{1.5}
 \begin{tabular}{ |l|l|l| }
 \hline
-Markdown & Less & Pretty \\ \hline
-\emph{Still} & \lstinline[columns=fixed]\$renders$ & \textbf{nicely} \\ \hline
+Markdown & Less & Pretty \\ \hline \hline
+\emph{Still} & \lstinline[columns=fixed]$renders$ & \textbf{nicely} \\ \hline
 1 & 2 & 3 \\ \hline
 \end{tabular}
 \endgroup
 
+\vspace{5mm}
+
+Miguel Murça, creator of TeXDown, said
+\begin{displayquote}
+Here is a quote,
+made using TeXDown.
+\end{displayquote}
+Truly words of wisdom.
 \end{document}
 % End of body.

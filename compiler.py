@@ -24,7 +24,10 @@ with open(sys.argv[1]) as sourceFile:
         os.unlink(outName + '.tex')
         raise ValueError('Error {} executing command: {}'.format(retcode, ' '.join(cmd))) 
     
-    os.unlink(outName + '.log')
-    os.unlink(outName + '.aux')
+    try:
+        os.unlink(outName + '.log')
+        os.unlink(outName + '.aux')
+    except:
+        pass
 
 print 'Done!'

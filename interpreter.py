@@ -2,9 +2,9 @@
 
 import re
 
-metadataReg = re.compile(r'^\[(author|date|title): *(.+?)\]\n', re.IGNORECASE | re.MULTILINE)
-macroTagReg = re.compile(r'^\[macro:(\w+?), *(.+?)\]\n', re.MULTILINE|re.IGNORECASE)
-includeTagReg = re.compile(r'^\[include: *([\w\d]+)((?:,[\w\d]+)*?)\]\n', re.MULTILINE)
+metadataReg = re.compile(r'^\[(author|date|title): *(.+?)\]$', re.IGNORECASE | re.MULTILINE)
+macroTagReg = re.compile(r'^\[macro:(\w+?), *(.+?)\]$', re.MULTILINE|re.IGNORECASE)
+includeTagReg = re.compile(r'^\[include: *([\w\d]+)((?:,[\w\d]+)*?)\]$', re.MULTILINE)
 
 theoremEnvReg = re.compile(r'\[(theorem|corollary|lemma|definition)(?:\:(.+?))*\]\n((?:(?:\t| {4}).*(?:\n|$))+)', re.IGNORECASE)
 codeEnvReg = re.compile(r'(```|~~~~)([\w\d]+)*\n(.*?)\n\1([^\n]+)*', re.DOTALL)
@@ -26,9 +26,12 @@ olistReg = re.compile(r'^(?:\d+\. *.+(?:\n|$)(?:(?:\t| {4}).+\n*)*)+', re.MULTIL
 hlineReg = re.compile(r'^-{3,}|\+{3,}|\*{3,}$', re.MULTILINE)
 
 # Markdown table regex
-prettyTableReg = re.compile(r'^ *\|(.+)\n *\|( *[-:]+[-| :]*)\n((?: *\|.*(?:\n|$))*)', re.MULTILINE)
+prettyTableReg = re.compile(r'^ *\|(.+)\n *\|( *[-:]+[-| :]*)\n((?: *\|.*(?:\n|$|\|))*)', re.MULTILINE)
 uglyTableReg = re.compile(r'^ *(\S.*\|.*)\n *([-:]+ *\|[-| :]*)\n((?:.*\|.*(?:\n|$))*)', re.MULTILINE)
 tableAlignReg = re.compile(r':?-{3,}:?')
+
+# Blockquote
+blockquoteReg = re.compile(r'(?: *> *[^\n]+(?:\n|$))+')
 
 def makeHeader(source):
     # Compiled tex string
@@ -69,6 +72,10 @@ def makeHeader(source):
     # If strikeout is used, include ulem
     if crossedReg.search(source):
         includedLibs.add(('ulem','normalem'))
+    
+    # If blockquote is used, include csquotes
+    if blockquoteReg.search(source):
+        includedLibs.add(('csquotes',))
 
     # Make library includes
     for lib in includedLibs:
@@ -168,7 +175,7 @@ def makeBody(source):
     clearSource = codeEnvReg.sub(makelstlisting, clearSource)
 
     # Make inline code
-    clearSource = inlineCodeReg.sub(r'\\lstinline[columns=fixed]\$\1$', clearSource)
+    clearSource = inlineCodeReg.sub(r'\\lstinline[columns=fixed]$\1$', clearSource)
 
     # Replace all $$$ envs with gathered environments
     #   and $$$* with gather* environements
@@ -261,45 +268,42 @@ def makeBody(source):
 \renewcommand{\arraystretch}{1.5}'''
 
         out += '\n\\begin{tabular}'
-        lines = match.group(0).splitlines()
-
-        # First determine alignment of each collumn
+        
+        # Get alignments
+        alignLine = match.group(2)
+        alignmentsWithSeparator = re.search(r' *\|?(.+)\|? *', alignLine).group(1)
         alignments = {}
-        alignmentLines = []
-        maxLen = 0
-        for line in lines:
-            if line[0] == '|':
-                line = line[1:]
-            if line[-1] == '|':
-                line = line[:-1]
-            
-            elems = line.split('|')
-            
-            if len(elems) > maxLen:
-                maxLen = len(elems)
-
-            position = 0
-            for elem in filter(None, elems):
-                if tableAlignReg.search(elem):
-                    if elem.count(':') == 2:
-                        alignments[position] = 'c'
-                    elif elem.find(':') * 1.0 / len(elem) > 0.5:
-                        alignments[position] = 'r'
-                position += 1
+        columns = alignmentsWithSeparator.split('|')
+        position = 0
+        for align in columns:
+            colonCount = align.count(':')
+            if colonCount == 1 and align.find(':') * 1.0 / len(align) > 0.5:
+                alignments[position] = 'r'
+            elif colonCount == 2:
+                alignments[position] = 'c'
+            position += 1
         
         # Create tags
-        out += '{ |' + '|'.join([alignments.get(i, 'l') for i in range(0,maxLen)]) + '| }'
-        
-        # Create actual table (skipping alignment lines)
+        out += '{ |' + '|'.join([alignments.get(i, 'l') for i in range(len(columns))]) + '| }'
         out += '\n\\hline\n'
-        for line in lines:
+        
+        # Create table "header"
+        header = match.group(1)
+        if header[0] == '|':
+            header = header[1:]
+        if header[-1] == '|':
+            header = header[:-1]
+        elems = header.split('|')
+        for i in range(len(elems)):
+            elems[i] = elems[i].strip()
+        out += ' & '.join(elems) + ' \\\\ \\hline \\hline\n'
+
+        # Create actual table (skipping alignment lines)
+        for line in match.group(3).splitlines():
             if line[0] == '|':
                 line = line[1:]
             if line[-1] == '|':
                 line = line[:-1]
-            
-            if tableAlignReg.search(line):
-                continue
             elems = line.split('|')
             for i in range(len(elems)):
                 elems[i] = elems[i].strip()
@@ -312,11 +316,19 @@ def makeBody(source):
     clearSource = prettyTableReg.sub(makeTables, clearSource)
     clearSource = uglyTableReg.sub(makeTables, clearSource)
     
+    # Make blockquotes
+    def makeBq(match):
+        out = '\\begin{displayquote}\n'
+        out += '\n'.join(map(lambda match: match[1], re.findall(r'( *> *)(.+)', match.group(0))))
+        out += '\n\\end{displayquote}\n'
+        return out
+    clearSource = blockquoteReg.sub(makeBq, clearSource)
+
     # Escape \# to #, as these were introduced to remove code/section collision
     clearSource = clearSource.replace(r'\#', '#')
 
-    # Escape triple linebreaks as vspaces
-    clearSource = re.sub(r'^\n\n\n', r'\n\\vspace{5mm}\n\n', clearSource, 0, re.MULTILINE)
+    # Escape double linebreaks as vspaces
+    clearSource = re.sub(r'^\n\n', r'\n\\vspace{5mm}\n\n', clearSource, 0, re.MULTILINE)
 
     # Add handled text
     addLine(clearSource)
