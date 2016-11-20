@@ -263,7 +263,7 @@ def makeBody(source):
 
     # Make tables
     def makeTables(match):
-        out = r'''\begin{table}[h!]
+        out = r'''\begin{table}[h!tpb]
 \begingroup
 \setlength{\tabcolsep}{10pt}
 \renewcommand{\arraystretch}{1.5}'''
@@ -318,11 +318,10 @@ def makeBody(source):
 {}\endgroup
 \end{{table}}
 '''.format(makeTables.tableNumber, caption)
-
         makeTables.tableNumber += 1
-
         return out
-    makeTables.tableNumber = 0
+    
+    makeTables.tableNumber = 1
 
     clearSource = prettyTableReg.sub(makeTables, clearSource)
     clearSource = uglyTableReg.sub(makeTables, clearSource)
@@ -330,7 +329,7 @@ def makeBody(source):
     # Make blockquotes
     def makeBq(match):
         out = '\\begin{displayquote}\n'
-        out += '\n'.join(map(lambda match: match[1], re.findall(r'( *> *)(.+)', match.group(0))))
+        out += '\n\n'.join(map(lambda match: match[1], re.findall(r'( *> *)(.+)', match.group(0))))
         out += '\n\\end{displayquote}\n'
         return out
     clearSource = blockquoteReg.sub(makeBq, clearSource)

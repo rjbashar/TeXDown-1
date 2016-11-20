@@ -1,13 +1,54 @@
 # -*- coding:utf-8 -*-
 
-import sys
 import interpreter
+import sys, getopt
 import os
 import subprocess
 
-with open(sys.argv[1]) as sourceFile:
+def printHelp():
+    print 'compile.py -i [--input=] inFile.txd [-o [--output=] outFile.tex] [--no-cleanup] [--no-pdf]'
+
+try:
+    opts, args = getopt.getopt(sys.argv[1:] ,"hi:o:",["help=","no-cleanup", "input=", "output=", "no-pdf"])
+except getopt.GetoptError as err:
+    print err
+    printHelp()
+    sys.exit(2)
+
+inFile = ''
+outName = ''
+noCleanup = False
+noPdf = False
+for opt,arg in opts:
+    if opt in ('-h', '--help'):
+        printHelp()
+        sys.exit()
+    elif opt in ('-i', '--input'):
+        inFile = arg
+    elif opt in ('-o', '--output'):
+        outName = arg
+    elif opt == '--no-cleanup':
+        noCleanup = True
+    elif opt == '--no-pdf':
+        noPdf = True
+
+if inFile == '':
+    if len(args) > 0:
+        inFile = args[0]
+    else:
+        print 'No input file given.'
+        sys.exit(2)
+inExtension = inFile[inFile.rfind('.'):]
+inFile = inFile[:inFile.rfind('.')]
+
+if outName == '':
+    if len(args) > 1:
+        outName = args[1]
+    else:
+        outName = inFile + '-compiled'
+
+with open(inFile + inExtension) as sourceFile:
     source = sourceFile.read()
-    outName = sys.argv[2] if len(sys.argv) > 2 else sys.argv[1][:sys.argv[1].rfind('.')] + '-compiled'
 
     print 'Outputting to ' + outName + '.tex'
 
@@ -16,18 +57,20 @@ with open(sys.argv[1]) as sourceFile:
         out.write('\n')
         out.write(interpreter.makeBody(source))
     
-    proc = subprocess.Popen(['pdflatex', outName + '.tex'])
-    proc.communicate()
+    if not noPdf:
+        proc = subprocess.Popen(['pdflatex', outName + '.tex'])
+        proc.communicate()
 
-    retcode = proc.returncode
-    if not retcode == 0:
-        os.unlink(outName + '.tex')
-        raise ValueError('Error {} executing command: {}'.format(retcode, ' '.join(cmd))) 
+        retcode = proc.returncode
+        if not retcode == 0:
+            os.unlink(outName + '.tex')
+            raise ValueError('Error {} executing command: {}'.format(retcode, ' '.join(cmd))) 
     
-    try:
-        os.unlink(outName + '.log')
-        os.unlink(outName + '.aux')
-    except:
-        pass
+    if not noCleanup:
+        try:
+            os.unlink(outName + '.log')
+            os.unlink(outName + '.aux')
+        except:
+            pass
 
 print 'Done!'

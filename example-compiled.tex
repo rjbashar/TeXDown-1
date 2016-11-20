@@ -144,7 +144,7 @@ such as the paragraph space or $\textrm{inline math: }x^2$.
 
 \vspace{5mm}
 
-\begin{table}[h!]
+\begin{table}[h!tpb]
 \begingroup
 \setlength{\tabcolsep}{10pt}
 \renewcommand{\arraystretch}{1.5}
@@ -155,27 +155,27 @@ col 3 is & right-aligned & \$1600 \\ \hline
 col 2 is & centered & \$12 \\ \hline
 zebra stripes & are neat & \$1 \\ \hline
 \end{tabular}
-\label{table0}
+\label{table1}
 \endgroup
 \end{table}
 
 \vspace{5mm}
 
-\begin{table}[h!]
+\begin{table}[h!tpb]
 \begingroup
 \setlength{\tabcolsep}{10pt}
 \renewcommand{\arraystretch}{1.5}
 \begin{tabular}{ |l|l|l| }
 \hline
-Markdown & Less & Pretty \\ \hline \hline
+\sout{Markdown} \LaTeX{}Down & Less & Pretty \\ \hline \hline
 \emph{Still} & \lstinline[columns=fixed]$renders$ & \textbf{nicely} \\ \hline
 1 & 2 & 3 \\ \hline
 \end{tabular}
-\label{table2}
+\label{table3}
 \endgroup
 \end{table}
 
-\begin{table}[h!]
+\begin{table}[h!tpb]
 \begingroup
 \setlength{\tabcolsep}{10pt}
 \renewcommand{\arraystretch}{1.5}
@@ -184,7 +184,7 @@ Markdown & Less & Pretty \\ \hline \hline
 Pretty & Markdown & Tables \\ \hline \hline
 Can & also & have \\ \hline
 \end{tabular}
-\label{table1}
+\label{table2}
 \caption{Captions, as evidenced!}
 \endgroup
 \end{table}
@@ -194,6 +194,7 @@ Can & also & have \\ \hline
 Miguel Murça, creator of TeXDown, said
 \begin{displayquote}
 Here is a quote,
+
 made using TeXDown.
 \end{displayquote}
 Truly words of wisdom.
