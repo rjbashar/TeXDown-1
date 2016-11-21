@@ -2,6 +2,7 @@
 
 import re
 
+addToHeaderReg = re.compile(r'\[header\]\n((?:(?:\t| {4}).*(?:\n|$))+)', re.IGNORECASE)
 metadataReg = re.compile(r'^\[(author|date|title): *(.+?)\]$', re.IGNORECASE | re.MULTILINE)
 macroTagReg = re.compile(r'^\[macro:(\w+?), *(.+?)\]$', re.MULTILINE|re.IGNORECASE)
 includeTagReg = re.compile(r'^\[include: *([\w\d]+)((?:,[\w\d]+)*?)\]$', re.MULTILINE)
@@ -31,7 +32,10 @@ uglyTableReg = re.compile(r'^ *(\S.*\|.*)\n *([-:]+ *\|[-| :]*)\n((?:.*\|.*(?:\n
 tableAlignReg = re.compile(r':?-{3,}:?')
 
 # Blockquote
-blockquoteReg = re.compile(r'(?: *> *[^\n]+(?:\n|$))+')
+blockquoteReg = re.compile(r'(?:^ *> *[^\n]+(?:\n|$))+', re.MULTILINE)
+
+# Center aligned eqs.
+centerEq = re.compile(r'^(?:\t| {4,})+(\$.+\$)$', re.MULTILINE)
 
 def makeHeader(source):
     # Compiled tex string
@@ -46,7 +50,7 @@ def makeHeader(source):
     # Include some useful predefined ones.
     includedLibs = {
         ('inputenc','utf8'),
-        ('amsmath',),
+        ('amsmath','fleqn'),
         ('amsthm',),
         ('amssymb',),
         ('url',)
@@ -89,22 +93,23 @@ def makeHeader(source):
         addLine(includeStr)
 
     # Define macros/newcommand
-    addLine('')
     macros = macroTagReg.findall(source)
-    for macro in macros:
-        # Find the highest argument number used;
-        #   that's the ammount of args required.
-        numberOfArgs = 0
-        argNums = re.findall(r'(?<!\\)#(\d+?)', macro[1])
-        if len(argNums) > 0:
-            numberOfArgs = max(argNums)
-        # Make macro
-        addLine(r'\newcommand{{\{}}}[{}]{{{}}}'.format(macro[0], numberOfArgs, macro[1]))
+    if len(macros) > 0:
+        addLine('')
+        for macro in macros:
+            # Find the highest argument number used;
+            #   that's the ammount of args required.
+            numberOfArgs = 0
+            argNums = re.findall(r'(?<!\\)#(\d+?)', macro[1])
+            if len(argNums) > 0:
+                numberOfArgs = max(argNums)
+            # Make macro
+            addLine(r'\newcommand{{\{}}}[{}]{{{}}}'.format(macro[0], numberOfArgs, macro[1]))
     
     # Define theorems
-    addLine('')
     theorems = theoremEnvReg.findall(source)
     if len(theorems) > 0:
+        addLine('')
         theoremNumber = 0
         for theorem in theorems:
             newTheoremCommand = ''
@@ -119,9 +124,9 @@ def makeHeader(source):
 
     # Look for title, author, date tags.
     #   LaTeX requires all or none.
-    addLine('')
     metadataTags = metadataReg.findall(source)
     if len(metadataTags) > 0:
+        addLine('')
         title, author, date = '', '', ''
         for tag in metadataTags:
             if tag[0] == 'title':
@@ -134,6 +139,16 @@ def makeHeader(source):
         addLine(r'\author{{{}}}'.format(author))
         addLine(r'\date{{{}}}'.format(date))
     
+    # Look and add any custom header contents
+    headerContents = addToHeaderReg.findall(source)
+    if len(headerContents) > 0:
+        addLine('')
+        addLine(r'% Start of custom header contents')
+        for match in headerContents:
+            addLine(match.strip())
+        addLine(r'% End of custom header contents')
+        addLine('')
+
     addLine(r'% End of header')
     addLine('')
     return addLine.compiled.strip()
@@ -164,6 +179,9 @@ def makeBody(source):
     # Remove include tags
     clearSource = includeTagReg.sub('', clearSource)
 
+    # Remove header tags
+    clearSource = addToHeaderReg.sub('', clearSource)
+
     # strip
     clearSource = clearSource.strip()
 
@@ -182,16 +200,16 @@ def makeBody(source):
     # Make inline code
     clearSource = inlineCodeReg.sub(r'\\lstinline[columns=fixed]$\1$', clearSource)
 
-    # Replace all $$$ envs with gathered environments
-    #   and $$$* with gather* environements
-    def returnGatherEnv(match):
+    # Replace all $$$ envs with equation environments
+    #   and $$$* with equation* environements
+    def returnEqEnv(match):
         return '\\begin{{gather{star}}}\n{}\n\\end{{gather{star}}}'.format(
             '\\\\\n'.join(
                 map(lambda eq: ' '.join(eq.split('\n')), match.group(2).split('\n\n'))
             ).strip(),
             star = '*' if match.group(1) is not None else ''
         )
-    clearSource = mathEnvReg.sub(returnGatherEnv, clearSource)
+    clearSource = mathEnvReg.sub(returnEqEnv, clearSource)
 
     # Replace all theorem tags with theorem envs.
     # Matching order from leftmost assures correct theorem name order
@@ -338,6 +356,11 @@ def makeBody(source):
         out += '\n\\end{displayquote}\n'
         return out
     clearSource = blockquoteReg.sub(makeBq, clearSource)
+
+    # Make align shortcuts
+    def makeAlign(match):
+        return '\\begin{{center}}\n{}\n\\end{{center}}'.format(match.group(1))
+    clearSource = centerEq.sub(makeAlign, clearSource)
 
     # Escape \# to #, as these were introduced to remove code/section collision
     clearSource = clearSource.replace(r'\#', '#')
