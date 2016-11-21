@@ -6,10 +6,10 @@ import os
 import subprocess
 
 def printHelp():
-    print 'compile.py -i [--input=] inFile.txd [-o [--output=] outFile.tex] [--no-cleanup] [--no-pdf]'
+    print 'compile.py -i [--input=] inFile.txd [-o [--output=] outFile.tex] [-s [--silent]] [--no-cleanup] [--no-pdf]'
 
 try:
-    opts, args = getopt.getopt(sys.argv[1:] ,"hi:o:",["help=","no-cleanup", "input=", "output=", "no-pdf"])
+    opts, args = getopt.getopt(sys.argv[1:] ,"hi:o:s",["help","no-cleanup", "input=", "output=", "no-pdf", "silent"])
 except getopt.GetoptError as err:
     print err
     printHelp()
@@ -19,6 +19,7 @@ inFile = ''
 outName = ''
 noCleanup = False
 noPdf = False
+silent = False
 for opt,arg in opts:
     if opt in ('-h', '--help'):
         printHelp()
@@ -27,6 +28,8 @@ for opt,arg in opts:
         inFile = arg
     elif opt in ('-o', '--output'):
         outName = arg
+    elif opt in ('-s', '--silent'):
+        silent = True
     elif opt == '--no-cleanup':
         noCleanup = True
     elif opt == '--no-pdf':
@@ -59,7 +62,8 @@ with open(inFile + inExtension) as sourceFile:
     
     if not noPdf:
         proc = subprocess.Popen(['pdflatex', outName + '.tex'])
-        proc.communicate()
+        if not silent:
+            proc.communicate()
 
         retcode = proc.returncode
         if not retcode == 0:
@@ -68,9 +72,10 @@ with open(inFile + inExtension) as sourceFile:
     
     if not noCleanup:
         try:
-            os.unlink(outName + '.log')
-            os.unlink(outName + '.aux')
-        except:
-            pass
+            cleanupName = outName[outName.rfind('/')+1:]
+            os.unlink(cleanupName + '.log')
+            os.unlink(cleanupName + '.aux')
+        except Exception as err:
+            print 'Could not clean up: ' + str(err)
 
 print 'Done!'

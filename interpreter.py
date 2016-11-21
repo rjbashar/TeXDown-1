@@ -107,10 +107,12 @@ def makeHeader(source):
     if len(theorems) > 0:
         theoremNumber = 0
         for theorem in theorems:
-            newTheoremCommand = r'\newtheorem{{theorem{}}}'.format(theoremNumber)
+            newTheoremCommand = ''
             if theorem[1] != '':
+                newTheoremCommand += r'\newtheorem*{{theorem{}}}'.format(theoremNumber)
                 newTheoremCommand += r'{{{}}}'.format(theorem[1])
             else:
+                newTheoremCommand += r'\newtheorem{{theorem{}}}'.format(theoremNumber)
                 newTheoremCommand += r'{{{}}}'.format(theorem[0].lower().capitalize())
             addLine(newTheoremCommand)
             theoremNumber += 1
@@ -161,6 +163,9 @@ def makeBody(source):
 
     # Remove include tags
     clearSource = includeTagReg.sub('', clearSource)
+
+    # strip
+    clearSource = clearSource.strip()
 
     # Replace all code envs. with lstlisting codes
     #   HACK: To prevent further parsing of contents, offset

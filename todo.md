@@ -4,3 +4,4 @@
 + Images
 + ~~Tables~~
 + ~~Blockquotes~~
++ Theorems w/o numbers

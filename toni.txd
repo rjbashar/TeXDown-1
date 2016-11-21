@@ -1,0 +1,12 @@
+
+
+[Theorem]
+    A theorem
+
+[Theorem:Theorem's Name]
+    This theorem has a name, therefore it's not numbered.
+
+[date:11 november]
+[title:An example]
+[author:Toni]
+[include:babel,portuguese]
