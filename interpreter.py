@@ -152,7 +152,7 @@ def makeBody(source):
     addLine('')
 
     # If any metadata was specified, make title page.
-    if metadataReg.match(source):
+    if metadataReg.search(source):
         addLine(r'\maketitle')
     
     # "Clear" source copy without metadata tags
@@ -168,8 +168,8 @@ def makeBody(source):
     clearSource = clearSource.strip()
 
     # Replace all code envs. with lstlisting codes
-    #   HACK: To prevent further parsing of contents, offset
-    #       every line with a single space, to later remove.
+    #   HACK: To prevent further parsing of contents,
+    #       escape #, to furhter unescape
     def makelstlisting(match):
         language = r'language={}'.format(match.group(2)) if match.group(2) is not None else ''
         caption = r'caption={}'.format(match.group(4)) if match.group(4) is not None else ''

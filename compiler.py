@@ -4,30 +4,28 @@ import interpreter
 import sys, getopt
 import os
 import subprocess
-
-def printHelp():
-    print 'compile.py -i [--input=] inFile.txd [-o [--output=] outFile.tex] [-s [--silent]] [--no-cleanup] [--no-pdf]'
+from help import shortHelp,longHelp
 
 try:
     opts, args = getopt.getopt(sys.argv[1:] ,"hi:o:s",["help","no-cleanup", "input=", "output=", "no-pdf", "silent"])
 except getopt.GetoptError as err:
     print err
-    printHelp()
+    shortHelp()
     sys.exit(2)
 
 inFile = ''
-outName = ''
+outPath = ''
 noCleanup = False
 noPdf = False
 silent = False
 for opt,arg in opts:
     if opt in ('-h', '--help'):
-        printHelp()
+        longHelp()
         sys.exit()
     elif opt in ('-i', '--input'):
         inFile = arg
     elif opt in ('-o', '--output'):
-        outName = arg
+        outPath = arg
     elif opt in ('-s', '--silent'):
         silent = True
     elif opt == '--no-cleanup':
@@ -44,38 +42,48 @@ if inFile == '':
 inExtension = inFile[inFile.rfind('.'):]
 inFile = inFile[:inFile.rfind('.')]
 
-if outName == '':
+if outPath == '':
     if len(args) > 1:
-        outName = args[1]
+        outPath = args[1]
     else:
-        outName = inFile + '-compiled'
+        outPath = inFile + '-compiled'
+
+# Replace all in/out paths '\' for '/'
+inFile = inFile.replace('\\', '/')
+outPath = outPath.replace('\\', '/')
 
 with open(inFile + inExtension) as sourceFile:
     source = sourceFile.read()
 
-    print 'Outputting to ' + outName + '.tex'
+    print 'Outputting to ' + outPath + '.tex'
 
-    with open(outName + '.tex', 'w') as out:
+    with open(outPath + '.tex', 'w') as out:
         out.write(interpreter.makeHeader(source))
         out.write('\n')
         out.write(interpreter.makeBody(source))
-    
+
     if not noPdf:
-        proc = subprocess.Popen(['pdflatex', outName + '.tex'])
-        if not silent:
-            proc.communicate()
+        outDir = '' if outPath.rfind('/') < 0 else outPath[:outPath.rfind('/')+1]
+        outName = outPath if outPath.rfind('/') < 0 else outPath[outPath.rfind('/')+1:]
+        
+        proc = subprocess.Popen(['pdflatex', 
+            outName + '.tex',
+            '--quiet' if silent else '',
+            '--output-directory='+outDir]
+        )
+        proc.communicate()
 
         retcode = proc.returncode
         if not retcode == 0:
-            os.unlink(outName + '.tex')
-            raise ValueError('Error {} executing command: {}'.format(retcode, ' '.join(cmd))) 
+            os.unlink(outPath + '.tex')
+            raise ValueError('Error {} executing command: {}'.format(retcode, ' '.join(proc))) 
     
-    if not noCleanup:
-        try:
-            cleanupName = outName[outName.rfind('/')+1:]
-            os.unlink(cleanupName + '.log')
-            os.unlink(cleanupName + '.aux')
-        except Exception as err:
-            print 'Could not clean up: ' + str(err)
+        if not noCleanup:
+            try:
+                cleanupName = outDir + outName
+                os.unlink(cleanupName + '.log')
+                os.unlink(cleanupName + '.aux')
+            except Exception as err:
+                print 'Could not clean up: ' + str(err)
 
 print 'Done!'
