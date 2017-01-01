@@ -8,6 +8,7 @@
 + Multiple formulas
     - Numbered
     - Unumbered
+    - Easy centered formulas
 + Inline code
 + block code
 + Author/Date/Title tags

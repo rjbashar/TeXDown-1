@@ -1,6 +1,6 @@
 .vscode/
+files/
 *.synctex.gz
 *.pdf
 *.aux
 *.pyc
-files/
