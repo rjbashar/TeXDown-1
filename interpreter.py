@@ -2,10 +2,10 @@
 
 import re
 
-addToHeaderReg = re.compile(r'\[header\]\n((?:(?:\t| {4}).*(?:\n|$))+)', re.IGNORECASE)
-metadataReg = re.compile(r'^\[(author|date|title): *(.+?)\]$', re.IGNORECASE | re.MULTILINE)
-macroTagReg = re.compile(r'^\[(?:macro|define):(\w+?), *(.+?)\]$', re.MULTILINE|re.IGNORECASE)
-includeTagReg = re.compile(r'^\[include: *([\w\d]+)((?:,[\w\d]+)*?)\]$', re.MULTILINE)
+addToHeaderReg = re.compile(r'\[header\]\n((?:(?:\t| {4}).*(?:\n|$))+)', re.IGNORECASE | re.MULTILINE)
+metadataReg = re.compile(r'^\[(author|date|title): *(.+?)\](?:\n|$)', re.IGNORECASE | re.MULTILINE)
+macroTagReg = re.compile(r'^\[(?:macro|define):(\w+?), *(.+?)\](?:\n|$)', re.MULTILINE|re.IGNORECASE)
+includeTagReg = re.compile(r'^\[include: *([\w\d]+)((?:, ?[\w\d]+)*?)\](?:\n|$)', re.MULTILINE)
 
 theoremEnvReg = re.compile(r'\[(theorem|corollary|lemma|definition)(?:\:(.+?))*\]\n((?:(?:\t| {4}).*(?:\n|$))+)', re.IGNORECASE)
 codeEnvReg = re.compile(r'(```|~~~~)([\w\d]+)*\n(.*?)\n\1([^\n]+)*', re.DOTALL)
@@ -21,7 +21,8 @@ underlinedReg = re.compile(r'(__) *((?:(?!\1).)+?) *\1')
 crossedReg = re.compile(r'(~{2,})(.+)\1')
 inlineCodeReg = re.compile(r'`(.*?)`')
 
-ulistReg = re.compile(r'^(?:[\*\-+.] +.+(?:\n|$)(?:(?:\t| {4}).+\n*)*)+', re.MULTILINE)
+listTabSize = 4
+ulistReg = re.compile(r'^(?:([\*\-+.]) +.+(?:\n|$)(?:(?:\t| {4}).+\n*)*)+', re.MULTILINE)
 olistReg = re.compile(r'^(?:\d+\. *.+(?:\n|$)(?:(?:\t| {4}).+\n*)*)+', re.MULTILINE)
 
 hlineReg = re.compile(r'^-{3,}|\+{3,}|\*{3,}$', re.MULTILINE)
@@ -145,6 +146,7 @@ def makeHeader(source):
         addLine('')
         addLine(r'% Start of custom header contents')
         for match in headerContents:
+            print match
             addLine(match.strip())
         addLine(r'% End of custom header contents')
         addLine('')
@@ -273,9 +275,9 @@ def makeBody(source):
                     if char == ' ':
                         depth += 1
                     elif char == '\t':
-                        depth += 4
+                        depth += listTabSize
                     contentStart += 1
-                depth/=4
+                depth/=listTabSize
 
                 while depth > curDepth:
                     output += '\\begin{{{}}}\n'.format(group)
@@ -385,7 +387,7 @@ def makeBody(source):
     def makeVspaces(match):
         if inCodeEnv(match.end(0)):
             return match.group(0)
-        return r'\n\\vspace{5mm}\n\n'
+        return '\n\\vspace{5mm}\n\n'
     clearSource = re.sub(r'^\n\n', makeVspaces, clearSource, 0, re.MULTILINE)
 
     # Add handled text
