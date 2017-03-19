@@ -7,7 +7,7 @@ metadataReg = re.compile(r'^\[(author|date|title): *(.+?)\](?:\n|$)', re.IGNOREC
 macroTagReg = re.compile(r'^\[(?:macro|define):(\w+?), *(.+?)\](?:\n|$)', re.MULTILINE|re.IGNORECASE)
 includeTagReg = re.compile(r'^\[include: *([\w\d]+)((?:, ?[\w\d]+)*?)\](?:\n|$)', re.MULTILINE)
 
-theoremEnvReg = re.compile(r'\[(theorem|corollary|lemma|definition)(?:\:(.+?))*\]\n((?:(?:\t| {4}).*(?:\n|$))+)', re.IGNORECASE)
+theoremEnvReg = re.compile(r'\[(theorem|corollary|lemma|definition)(?:\:(.+?))*\]\n((?:(?:\t| {4}).*(?=\n|$))+)', re.IGNORECASE)
 codeEnvReg = re.compile(r'(```|~~~~)([\w\d]+)*\n(.*?)\n\1([^\n]+)*', re.DOTALL)
 mathEnvReg = re.compile(r'\$\$\$(\*)*(.*?)\$\$\$\*?', re.DOTALL)
 
@@ -18,6 +18,7 @@ sectionReg = re.compile(r'^(#+)(\*)? *(.+)', re.MULTILINE)
 emphasisReg = re.compile(r'(\*|//) *((?:(?!\1).)+?) *\1(?!\1)')
 boldReg = re.compile(r'(\*\*) *((?:(?!\1).)+?) *\1')
 underlinedReg = re.compile(r'(__) *((?:(?!\1).)+?) *\1')
+
 crossedReg = re.compile(r'(~{2,})(.+)\1')
 inlineCodeReg = re.compile(r'`(.*?)`')
 
@@ -50,6 +51,7 @@ def makeHeader(source):
     # Libs to include in the TeX file.
     # Include some useful predefined ones.
     includedLibs = {
+        ('fontenc','T1'),
         ('inputenc','utf8'),
         ('amsmath','fleqn'),
         ('amsthm',),
@@ -228,7 +230,7 @@ def makeBody(source):
             return match.group(0)
         global theoremNumber
         theoremNumber += 1
-        return '\\begin{{theorem{}}}\n{}\\end{{theorem{}}}\n'.format(theoremNumber,match.group(3), theoremNumber)
+        return '\\begin{{theorem{}}}\n{}\n\\end{{theorem{}}}\n'.format(theoremNumber,match.group(3), theoremNumber)
     clearSource = theoremEnvReg.sub(replaceWithName, clearSource)
 
     # Make emphasis, bolds, underline and crossed out

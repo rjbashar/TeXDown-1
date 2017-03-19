@@ -1,37 +1,43 @@
-# LaTeXDown does:
+# TODO
+
+## LaTeXDown does
 
 + Text formatting:
-    - Bold
-    - Emphasis/itallics
-    - Underline
-    - Strikeout
+  + Bold
+  + Emphasis/itallics
+  + Underline
+  + Strikeout
 + Multiple formulas
-    - Numbered
-    - Unumbered
-    - Easy centered formulas
+  + Numbered
+  + Unumbered
+  + Easy centered formulas
 + Inline code
 + block code
 + Author/Date/Title tags
 + Easy macro tags
 + Easy include tags
 + Easy
-    - theorems
-    - lemmas
-    - corollaries
-        - Named
-        - Unnamed
+  + theorems
+  + lemmas
+  + corollaries
+    + Named
+    + Unnamed
 + Sections
 + Blockquotes
 + Lists
-    - Ordered
-    - Unordered
+  + Ordered
+  + Unordered
 + Tables
-    - Ugly
-    - Pretty
-        - With captions
+  + Ugly
+  + Pretty
+    + With captions
 + Pure LaTeX
 
-# LaTeXDown doesn't yet do:
+## LaTeXDown doesn't yet do
 
 + Links
 + Images
+
+## Others
+
++ Add math stuff to README

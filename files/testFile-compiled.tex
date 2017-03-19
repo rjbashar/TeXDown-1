@@ -1,216 +1,45 @@
 % Start of header.
 \documentclass{article}
-\usepackage[portuguese]{babel}
-\usepackage{url}
 \usepackage[utf8]{inputenc}
+\usepackage{url}
+\usepackage[T1]{fontenc}
 \usepackage{amssymb}
 \usepackage[fleqn]{amsmath}
 \usepackage{amsthm}
 
-\newcommand{\R}[0]{\mathbb{R}}
-\newcommand{\dr}[0]{d \vec{r}}
-\newcommand{\dS}[0]{d \vec{S}}
-\newcommand{\vF}[0]{\vec{F}}
-\newcommand{\sqrBrkts}[1]{\left[#1\right]}
-\newcommand{\partialFrac}[2]{\frac{\partial #1}{\partial #2}}
-\newcommand{\grad}[1]{\vec{\nabla}#1}
-\newcommand{\divergent}[1]{\vec{\nabla} \cdot #1}
-\newcommand{\rot}[1]{\textrm{rot} #1}
-\newcommand{\ppartialFrac}[3]{\frac{\partial #1}{\partial #2 \partial #3}}
-
-\title{Resolução da 1ª Frequência de AMIII, 2013}
-\author{Miguel Murça}
-\date{21 Novembro, 2016}
+\newtheorem{theorem0}{Theorem}
+\newtheorem*{theorem1}{Name}
+\newtheorem{theorem2}{Lemma}
+\newtheorem*{theorem3}{Pythagorean Theorem}
 % End of header
 % Start of body.
 
 \begin{document}
 
-\maketitle
-\section{Exercício 1}
-
-\begin{center}
-$ \vF = (e^x, xy)$
-\end{center}
-
-\subsection*{a)}
-
-\subsubsection*{Parametrização:}
-
-\begin{gather*}
-\vec{r}(t): \\
-\qquad x = \cos t\\
-\qquad y = \sin t\\
-t \in [0, \pi/2]
-\end{gather*}
-
-\begin{gather*}
-\vec{r'}(t):\\
-\qquad x = -\sin t\\
-\qquad y = \cos t\\
-t \in [0, \pi/2]
-\end{gather*}
-
-\subsubsection*{Integral}
-
-\begin{gather*}
-\int_C \vF{} \cdot \dr = \int_0^{2 \pi} \vF \cdot \vec{r'}(t) dt =\\
-= \int_0^{2\pi} e^{\cos t} \cdot (- \sin t) + \cos t \sin t \cdot \cos t dt = \int_0^{2 \pi} - \sin t e^{\cos t} + \cos^2 t \sin t dt\\
-= \sqrBrkts{e^{\cos t}}_0^{2\pi} - 1/3 \sqrBrkts{\cos^3 t}_0^{2\pi} = e^1 - e^1 - 1/3 (1 - 1) = 0
-\end{gather*}
-
-\subsection*{b)}
-
-Sejam:
-\begin{itemize}
-\item $T$ a curva reta de $(1,0)$ para $(0,1)$
-\item $T_3$ a curva de $(0,1)$ para $(0,0)$
-\item $T_2$ a curva de $(0,0)$ para $(1,0)$
-\end{itemize}
-
-O teorema de Green diz-nos que:
-
-\begin{gather*}
-\int_t \vF \cdot \dr = \iint_A (\partialFrac{F_y}{x} - \partialFrac{F_x}{x}) dA - \int_{T_2} \vF \cdot \dr - \int_{T_3} \vF \cdot \dr
-\end{gather*}
-
-Assim:
-
-\begin{gather*}
-\partialFrac{F_y}{y} = y\\
-\partialFrac{F_x}{y} = 0
-\end{gather*}
-
-\begin{gather*}
-\int_{T_2} \vF \cdot \dr = \int_0^1 \vF (t, 0) \cdot <1,0> dt = \int_0^1 e^t dt = e^1 = e
-\end{gather*}
-
-\begin{gather*}
-\int_{T_3} \vF \cdot \dr = \int_1^0 \vF (0, t) \cdot <0,1> dt = \int_1^0 0 dt = 0
-\end{gather*}
-
-\begin{gather*}
-\iint_A (\partialFrac{F_y}{x} - \partialFrac{F_x}{y}) dA = \int_0^2 \int_0 ^{1-x} y dy dx = \int_0^1 \frac{(1-x)^2}{2} dx = -\sqrBrkts{\frac{(1-x)^3}{6}}_0^1 = 1/6
-\end{gather*}
+\begin{theorem0}
+    Unnamed theorem.
+\end{theorem0}
 
 \vspace{5mm}
 
-Logo:
-
-\begin{center}
-$\int_T \vF \cdot \dr = 1/6 - e$
-\end{center}
+\begin{theorem1}
+    A named theorem
+\end{theorem1}
 
 \vspace{5mm}
 
-\subsubsection*{c)}
-
-Não, pois se fosse, $(\partialFrac{F_y}{x} - \partialFrac{F_x}{y}) = 0$.
-
-\vspace{5mm}
-
-\rule{\textwidth}{0.4pt}
+\begin{theorem2}
+    A lemma
+\end{theorem2}
 
 \vspace{5mm}
 
-\section{Exercício 2}
+For example:
 
-\begin{center}
-$S = {(x,y,z) \in \R^3 : z^2 = x^2 + y^2, \qquad -1 \le z \le 0}$
-\end{center}
+\begin{theorem3}
+    A rectangle triangle of sides $a$, $b$ and $c$ must be
+\end{theorem3}
 
-Normal exterior.
-
-\begin{center}
-$\vF(x,y,z) = <20e^{z^13}, x^{2013z}, z-2013>$
-\end{center}
-
-Pelo Teorema da Divergência, e sendo $S_1 : {(x,y,z) \in \R^3: z^2\leq x^2+y^2 \land z=-1}$,
-$\tau$ o volume delimitado por $S$, $S_1$
-
-\begin{center}
-$\iint_S \vF \cdot \dS = \iiint_\tau \divergent{\vF} d\tau - \iint_{S_1} \vF \cdot \dS$
-\end{center}
-
-Assim, em $z=-1$
-
-\vspace{5mm}
-
-\begin{center}
-$\vF = <20 e^{-1}, x^{-2013}, -2014>$
-\end{center}
-
-\begin{gather*}
-\iint_{S_1} \vF \cdot \dS =\\
-\int_0^1 \int_0^{2 \pi} \vF(r \cos\theta, r \sin\theta, -1) \cdot <0,0,-1> r d\theta dr =\\
-\int_0^1 \int_0^{2 \pi} 2014 r d\theta dr = 2\pi 1007 = 2014 \pi
-\end{gather*}
-
-\vspace{5mm}
-
-\begin{gather*}
-\divergent{\vF} = \partialFrac{F_x}{x} + \partialFrac{F_y}{y} + \partialFrac{F_z}{z} =\\
-= 0+0+1 = 1
-\end{gather*}
-
-\vspace{5mm}
-
-\begin{gather*}
-\iiint_\tau \divergent{\vF} d\tau = \iiint_\tau 1 d\tau =\\
-= V_{\textrm{cone}} = \frac{\pi}{3}
-\end{gather*}
-
-\vspace{5mm}
-
-Assim,
-
-\begin{center}
-$\iint_S = \vF \cdot \dS = \pi/3 - 2014 \pi = (1/3 - 2014) \pi$
-\end{center}
-
-\vspace{5mm}
-
-\rule{\textwidth}{0.4pt}
-
-\vspace{5mm}
-
-\section{Exercício 3}
-
-Se $\vF$ é conservativo, então existe uma função escalar $f$ de
-domínio $\R^3$ e conjunto de chegada $\R$ tal que
-
-\begin{center}
-$\vF = \grad{f} = <\partialFrac{f}{x}, \partialFrac{f}{y}, \partialFrac{f}{z}>$
-\end{center}
-
-Assim,
-
-\begin{gather*}
-\rot{\vF} = \vec{\nabla} \times \vF =\\
-= <\partialFrac{F_z}{y} - \partialFrac{F_y}{z}, \partialFrac{F_x}{z} - \partialFrac{F_z}{x}, \partialFrac{F_y}{x} - \partialFrac{F_x}{y}>
-\end{gather*}
-
-Mas, pelo anteriormente visto,
-
-\begin{gather*}
-= <\partialFrac{}{y}\partialFrac{f}{z} - \partialFrac{}{z}\partialFrac{f}{y}, \partialFrac{}{z}\partialFrac{f}{x} - \partialFrac{}{x}\partialFrac{f}{z}, \partialFrac{}{x}\partialFrac{f}{y} - \partialFrac{}{y}\partialFrac{f}{x}>
-\end{gather*}
-
-Mas é dado que $\vF$ +e de classe $C^1$, pelo que, uma vez que
-$\vF(\partialFrac{f}{x}, \partialFrac{f}{y}, \partialFrac{f}{z})$
-e está definido e é contínuo em $\R^3$, então $f$ é de classe $C^2$
-em $\R^3$, pelo que
-
-\begin{gather*}
-\ppartialFrac{f}{y}{z} = \ppartialFrac{f}{z}{y}\\
-\ppartialFrac{f}{z}{x} = \ppartialFrac{f}{x}{z}\\
-\ppartialFrac{f}{x}{y} = \ppartialFrac{f}{y}{x}
-\end{gather*}
-
-Logo,
-
-\begin{center}
-$\rot{\grad{f}} = \rot{\vF} = <0,0,0> = \vec{0}$
-\end{center}
+    such that $a^2 + b^2 = c^2$
 \end{document}
 % End of body.
