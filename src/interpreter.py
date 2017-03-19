@@ -2,10 +2,13 @@
 
 import re
 
+commentsReg = re.compile(r' *?%.+(?:\n|$)')
+
 addToHeaderReg = re.compile(r'\[header\]\n((?:(?:\t| {4}).*(?:\n|$))+)', re.IGNORECASE | re.MULTILINE)
 metadataReg = re.compile(r'^\[(author|date|title): *(.+?)\](?:\n|$)', re.IGNORECASE | re.MULTILINE)
-macroTagReg = re.compile(r'^\[(?:macro|define):(\w+?), *(.+?)\](?:\n|$)', re.MULTILINE|re.IGNORECASE)
+macroTagReg = re.compile(r'^\[(?:macro|define): *(\w+?), *(.+?)\](?:\n|$)', re.MULTILINE|re.IGNORECASE)
 includeTagReg = re.compile(r'^\[include: *([\w\d]+)((?:, ?[\w\d]+)*?)\](?:\n|$)', re.MULTILINE)
+unincludeTagReg = re.compile(r'^\[(?:remove|uninclude): *([\w\d]+)\](?:\n|$)', re.MULTILINE)
 
 theoremEnvReg = re.compile(r'\[(theorem|corollary|lemma|definition)(?:\:(.+?))*\]\n((?:(?:\t| {4}).*(?=\n|$))+)', re.IGNORECASE)
 codeEnvReg = re.compile(r'(```|~~~~)([\w\d]+)*\n(.*?)\n\1([^\n]+)*', re.DOTALL)
@@ -40,6 +43,9 @@ blockquoteReg = re.compile(r'(?:^ *> *[^\n]+(?:\n|$))+', re.MULTILINE)
 centerEq = re.compile(r'^(?:\t| {4,})+(\$.+\$)$', re.MULTILINE)
 
 def makeHeader(source):
+    # Remove comments
+    source = commentsReg.sub('', source)
+
     # Compiled tex string
     def addLine(*args):
         for line in args:
@@ -62,6 +68,18 @@ def makeHeader(source):
     # MDTex files are always articles, as they're meant
     #   to be notes.
     addLine('\\documentclass{article}')
+
+    # Check for user defined do not include packages
+    tags = unincludeTagReg.findall(source)
+    for tag in tags:
+        found = False
+        for included in includedLibs:
+            if included[0] == tag:
+                includedLibs.remove(included)
+                found = True
+                break
+        if not found:
+            raise Exception('Could not remove package {}, because it is not included!'.format(tag))
 
     # Check for user defined included packages
     tags = includeTagReg.findall(source)
@@ -179,6 +197,9 @@ def makeBody(source):
 
     # Remove macro tags
     clearSource = macroTagReg.sub('', clearSource)
+
+    # Remove uninclude tags
+    clearSource = unincludeTagReg.sub('', clearSource)
 
     # Remove include tags
     clearSource = includeTagReg.sub('', clearSource)

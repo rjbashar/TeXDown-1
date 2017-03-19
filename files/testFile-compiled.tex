@@ -7,39 +7,30 @@
 \usepackage[fleqn]{amsmath}
 \usepackage{amsthm}
 
-\newtheorem{theorem0}{Theorem}
-\newtheorem*{theorem1}{Name}
-\newtheorem{theorem2}{Lemma}
-\newtheorem*{theorem3}{Pythagorean Theorem}
+\newcommand{\braces}[1]{\left ( #1 \right )}
+\newcommand{\dpartial}[2]{\frac{\partial #1}{\partial #2}}
+\newcommand{\position}[0]{\vec{r}}
+\newcommand{\velocity}[0]{\vec{v}}
+\newcommand{\versor}[1]{\hat{e_{#1}}}
+
+\title{Dedução da equação de onda}
+\author{}
+\date{}
 % End of header
 % Start of body.
 
 \begin{document}
 
-\begin{theorem0}
-    Unnamed theorem.
-\end{theorem0}
+\maketitle
+É condição necessária mas não suficiente para que $\psi$ seja uma função
+de onda que
 
-\vspace{5mm}
+$$\psi = \psi \braces{\position - \velocity t} = \psi \braces{u}$$
 
-\begin{theorem1}
-    A named theorem
-\end{theorem1}
+$$u := \position - \velocity t = \sum_i q_i \versor{i} - \sum_i \dot{q_i} \versor{i} t$$
 
-\vspace{5mm}
-
-\begin{theorem2}
-    A lemma
-\end{theorem2}
-
-\vspace{5mm}
-
-For example:
-
-\begin{theorem3}
-    A rectangle triangle of sides $a$, $b$ and $c$ must be
-\end{theorem3}
-
-    such that $a^2 + b^2 = c^2$
+\begin{gather*}
+\\
+\end{gather*}
 \end{document}
 % End of body.
