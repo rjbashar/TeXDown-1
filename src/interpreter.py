@@ -32,7 +32,7 @@ olistReg = re.compile(r'^(?:\d+\. *.+(?:\n|$)(?:(?:\t| {4}).+\n*)*)+', re.MULTIL
 hlineReg = re.compile(r'^-{3,}|\+{3,}|\*{3,}$', re.MULTILINE)
 
 # Markdown table regex
-prettyTableReg = re.compile(r'^\s*\|\s*(.+)\n\s*\|(\s*[-:]+[-|\s:]*)\n((?:\s*\|.*(?:\n|$|\|))*)((?:.+(?:\n|$))+)*', re.MULTILINE)
+prettyTableReg = re.compile(r'^\|\s*(.+)\n\s*\|(\s*[-:]+[-|\s:]*)\n((?:\s*\|.*(?:\n|$|\|))*)((?:.+(?:\n|$))+)?', re.MULTILINE)
 uglyTableReg = re.compile(r'^ *(\S.*\|.*)\n *([-:]+ *\|[-| :]*)\n((?:.*\|.*(?:\n|$))*)', re.MULTILINE)
 tableAlignReg = re.compile(r':?-{3,}:?')
 
@@ -61,7 +61,8 @@ def makeHeader(source):
         ('inputenc','utf8'),
         ('amsmath',),
         ('amsthm',),
-        ('amssymb',)
+        ('amssymb',),
+        ('tabulary',)
     }
 
     # MDTex files are always articles, as they're meant
@@ -329,7 +330,7 @@ def makeBody(source):
 \setlength{\tabcolsep}{10pt}
 \renewcommand{\arraystretch}{1.5}'''
 
-        out += '\n\\begin{tabular}'
+        out += '\n\\begin{tabulary}{\\textwidth}'
         
         # Get alignments
         alignLine = match.group(2)
@@ -341,13 +342,13 @@ def makeBody(source):
             align = align.strip()
             colonCount = align.count(':')
             if colonCount == 1 and align.find(':') * 1.0 / len(align) > 0.5:
-                alignments[position] = 'r'
+                alignments[position] = 'R'
             elif colonCount == 2:
-                alignments[position] = 'c'
+                alignments[position] = 'C'
             position += 1
         
         # Create tags
-        out += '{ |' + '|'.join([alignments.get(i, 'l') for i in range(len(columns))]) + '| }'
+        out += '{ |' + '|'.join([alignments.get(i, 'L') for i in range(len(columns))]) + '| }'
         out += '\n\\hline\n'
         
         # Create table "header"
@@ -374,9 +375,9 @@ def makeBody(source):
             out += ' & '.join(elems) + ' \\\\ \\hline\n'
         
         # Find caption if available
-        caption = '\\caption{{{}}}\n'.format(match.group(4)) if (len(match.groups()) > 3 and match.group(4) is not None) else ''
+        caption = '\\caption{{\n{}}}\n'.format(match.group(4)) if match.group(4) is not None else ''
 
-        out += r'''\end{{tabular}}
+        out += r'''\end{{tabulary}}
 {}\label{{table{}}}
 \end{{table}}
 '''.format(caption, makeTables.tableNumber)
