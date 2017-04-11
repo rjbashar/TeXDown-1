@@ -32,7 +32,7 @@ olistReg = re.compile(r'^(?:\d+\. *.+(?:\n|$)(?:(?:\t| {4}).+\n*)*)+', re.MULTIL
 hlineReg = re.compile(r'^-{3,}|\+{3,}|\*{3,}$', re.MULTILINE)
 
 # Markdown table regex
-prettyTableReg = re.compile(r'^\s*\|\s*(.+)\n\s*\|(\s*[-:]+[-|\s:]*)\n((?:\s*\|.*(?:\n|$|\|))*)(?:(?:\t| {4})+((?:.|\n)+))?', re.MULTILINE)
+prettyTableReg = re.compile(r'^\s*\|\s*(.+)\n\s*\|(\s*[-:]+[-|\s:]*)\n((?:\s*\|.*(?:\n|$|\|))*)((?:.+\n)+)*', re.MULTILINE)
 uglyTableReg = re.compile(r'^ *(\S.*\|.*)\n *([-:]+ *\|[-| :]*)\n((?:.*\|.*(?:\n|$))*)', re.MULTILINE)
 tableAlignReg = re.compile(r':?-{3,}:?')
 
