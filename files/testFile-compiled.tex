@@ -9,9 +9,12 @@
 
 \newcommand{\braces}[1]{\left ( #1 \right )}
 \newcommand{\dpartial}[2]{\frac{\partial #1}{\partial #2}}
+\newcommand{\ddpartial}[2]{\frac{\partial^2 #1}{\partial #2^2}}
 \newcommand{\position}[0]{\vec{r}}
 \newcommand{\velocity}[0]{\vec{v}}
 \newcommand{\versor}[1]{\hat{e_{#1}}}
+
+\newtheorem*{theorem0}{Equação de onda what}
 
 \title{Dedução da equação de onda}
 \author{}
@@ -30,7 +33,33 @@ $$\psi = \psi \braces{\position - \velocity t} = \psi \braces{u}$$
 $$u := \position - \velocity t = \sum_i q_i \versor{i} - \sum_i \dot{q_i} \versor{i} t$$
 
 \begin{gather*}
-\\
+\dpartial{\psi}{q_i} = \dpartial{\psi}{u} \dpartial{u}{q_i} = \dpartial{\psi}{u} \cdot 1\\
+\Rightarrow \dpartial{\psi}{q_i} = \dpartial{\psi}{u}
 \end{gather*}
+
+Por outro lado,
+
+$$ \dpartial{\psi}{t} = \dpartial{\psi}{u} \dpartial{u}{t} = \dpartial{\psi}{u} (- \velocity) $$
+
+Observando a 2ª derivada:
+
+\begin{gather*}
+\ddpartial{\psi}{q_i} = \dpartial{}{u} \dpartial{\psi}{q_i} \dpartial{u}{q_i} = \ddpartial{\psi}{u}\\
+\ddpartial{\psi}{t} = \dpartial{}{u} \braces{\dpartial{\psi}{t}} \dpartial{u}{t} =\\
+= \dpartial{}{u} \braces{\dpartial{\psi}{u} \braces{- \velocity}} \braces{- \velocity} =\\
+= v^2 \ddpartial{\psi}{u}
+\end{gather*}
+
+Assim, obtém-se
+
+\begin{theorem0}
+\begin{center}
+$$\ddpartial{\psi}{q_i} = \frac{1}{v^2} \ddpartial{\psi}{t}$$
+\end{center}
+\end{theorem0}
+
+\vspace{5mm}
+
+Mas isto $\neq \nabla^2 \psi = \frac{1}{v^2} \ddpartial{\psi}{t}$ ?
 \end{document}
 % End of body.

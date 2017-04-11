@@ -32,7 +32,7 @@ olistReg = re.compile(r'^(?:\d+\. *.+(?:\n|$)(?:(?:\t| {4}).+\n*)*)+', re.MULTIL
 hlineReg = re.compile(r'^-{3,}|\+{3,}|\*{3,}$', re.MULTILINE)
 
 # Markdown table regex
-prettyTableReg = re.compile(r'^ *\|(.+)\n *\|( *[-:]+[-| :]*)\n((?: *\|.*(?:\n|$|\|))*)(?:(?:\t| {4})+(.+))?', re.MULTILINE)
+prettyTableReg = re.compile(r'^\s*\|\s*(.+)\n\s*\|(\s*[-:]+[-|\s:]*)\n((?:\s*\|.*(?:\n|$|\|))*)(?:(?:\t| {4})+(.+))?', re.MULTILINE)
 uglyTableReg = re.compile(r'^ *(\S.*\|.*)\n *([-:]+ *\|[-| :]*)\n((?:.*\|.*(?:\n|$))*)', re.MULTILINE)
 tableAlignReg = re.compile(r':?-{3,}:?')
 
@@ -59,10 +59,9 @@ def makeHeader(source):
     includedLibs = {
         ('fontenc','T1'),
         ('inputenc','utf8'),
-        ('amsmath','fleqn'),
+        ('amsmath',),
         ('amsthm',),
-        ('amssymb',),
-        ('url',)
+        ('amssymb',)
     }
 
     # MDTex files are always articles, as they're meant
@@ -326,8 +325,7 @@ def makeBody(source):
     def makeTables(match):
         if inCodeEnv(match.end(0)):
             return match.group(0)
-        out = r'''\begin{table}[h!tpb]
-\begingroup
+        out = r'''\begin{table}[hbpt]
 \setlength{\tabcolsep}{10pt}
 \renewcommand{\arraystretch}{1.5}'''
 
@@ -335,11 +333,12 @@ def makeBody(source):
         
         # Get alignments
         alignLine = match.group(2)
-        alignmentsWithSeparator = re.search(r' *\|?(.+)\|? *', alignLine).group(1)
+        alignmentsWithSeparator = re.search(r'\s*\|?(.+)\|?\s*', alignLine).group(1)
         alignments = {}
         columns = alignmentsWithSeparator.split('|')
         position = 0
         for align in columns:
+            align = align.strip()
             colonCount = align.count(':')
             if colonCount == 1 and align.find(':') * 1.0 / len(align) > 0.5:
                 alignments[position] = 'r'
@@ -358,29 +357,29 @@ def makeBody(source):
         if header[-1] == '|':
             header = header[:-1]
         elems = header.split('|')
-        for i in range(len(elems)):
-            elems[i] = elems[i].strip()
+        elems = map(lambda x: x.strip(), elems)
         out += ' & '.join(elems) + ' \\\\ \\hline \\hline\n'
 
         # Create actual table (skipping alignment lines)
         for line in match.group(3).splitlines():
+            if line == '':
+                continue
+            line = line.strip()
             if line[0] == '|':
                 line = line[1:]
             if line[-1] == '|':
                 line = line[:-1]
             elems = line.split('|')
-            for i in range(len(elems)):
-                elems[i] = elems[i].strip()
+            elems = map(lambda x: x.strip(), elems)
             out += ' & '.join(elems) + ' \\\\ \\hline\n'
         
         # Find caption if available
         caption = '\\caption{{{}}}\n'.format(match.group(4)) if (len(match.groups()) > 3 and match.group(4) is not None) else ''
 
         out += r'''\end{{tabular}}
-\label{{table{}}}
-{}\endgroup
+{}\label{{table{}}}
 \end{{table}}
-'''.format(makeTables.tableNumber, caption)
+'''.format(caption, makeTables.tableNumber)
         makeTables.tableNumber += 1
         return out
     

@@ -2,6 +2,7 @@
 
 [define:braces,\left ( #1 \right )]
 [define:dpartial,\frac{\partial #1}{\partial #2}]
+[define:ddpartial,\frac{\partial^2 #1}{\partial #2^2}]
 [define:position,\vec{r}]
 [define:velocity,\vec{v}]
 [define:versor,\hat{e_{#1}}]
@@ -21,3 +22,23 @@ $$$
 
 Por outro lado,
 
+$$ \dpartial{\psi}{t} = \dpartial{\psi}{u} \dpartial{u}{t} = \dpartial{\psi}{u} (- \velocity) $$
+
+Observando a 2ª derivada:
+
+$$$*
+\ddpartial{\psi}{q_i} = \dpartial{}{u} \dpartial{\psi}{q_i} \dpartial{u}{q_i} = \ddpartial{\psi}{u}
+
+\ddpartial{\psi}{t} = \dpartial{}{u} \braces{\dpartial{\psi}{t}} \dpartial{u}{t} =
+
+= \dpartial{}{u} \braces{\dpartial{\psi}{u} \braces{- \velocity}} \braces{- \velocity} =
+
+= v^2 \ddpartial{\psi}{u}
+$$$
+
+Assim, obtém-se
+
+[lemma:Equação de onda what]
+    $$\ddpartial{\psi}{q_i} = \frac{1}{v^2} \ddpartial{\psi}{t}$$
+
+Mas isto $\neq \nabla^2 \psi = \frac{1}{v^2} \ddpartial{\psi}{t}$ ?
