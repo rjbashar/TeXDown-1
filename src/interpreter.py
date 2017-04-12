@@ -42,6 +42,9 @@ blockquoteReg = re.compile(r'(?:^ *> *[^\n]+(?:\n|$))+', re.MULTILINE)
 # Center aligned eqs.
 centerEq = re.compile(r'^(?:\t| {4,})+(\$.+\$)$', re.MULTILINE)
 
+# Images
+imageReg = re.compile(r'^[ \t]*!\[(.+)\]\((.+)\)[ \t]*$', re.MULTILINE)
+
 def makeHeader(source):
     # Remove comments
     source = commentsReg.sub('', source)
@@ -101,6 +104,10 @@ def makeHeader(source):
     # If blockquote is used, include csquotes
     if blockquoteReg.search(source):
         includedLibs.add(('csquotes',))
+    
+    # If images are used, include graphicx
+    if imageReg.search(source):
+        includedLibs.add(('graphicx',))
 
     # Make library includes
     for lib in includedLibs:
@@ -398,6 +405,18 @@ def makeBody(source):
         out += '\n\\end{displayquote}\n'
         return out
     clearSource = blockquoteReg.sub(makeBq, clearSource)
+
+    # Make images
+    def makeImgs(match):
+        if inCodeEnv(match.end(0)):
+            return match.group(0)
+        out = '\\begin{figure}[hbpt]\n'
+        out += '\t\\includegraphics[width=\\textwidth,height=\\textheight,keepaspectratio]{{{}}}\n'.format(match.group(2))
+        out += '\t\\caption{{\n\t{}\n\t}}\n'.format(match.group(1))
+        out += '\t\\label{{ {} }}\n'.format(match.group(2))
+        out += '\\end{figure}\n'
+        return out
+    clearSource = imageReg.sub(makeImgs, clearSource)
 
     # Make align shortcuts
     def makeAlign(match):
