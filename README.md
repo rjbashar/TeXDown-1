@@ -2,7 +2,7 @@
 
 ## What is TeXDown
 
-TeXDown, as a set of three python scripts, `interpreter.py`, `compiler.py` and `help.py`,
+TeXDown, as a set of three python scripts, `interpreter.py`, `texdown.py` and `help.py`,
 is a transpiler that converts markdown to LaTeX.
 
 As a languange, TeXDown intends to be a custom flavour of markdown, with fast notes
@@ -18,12 +18,12 @@ capabilities and offer tools that help in writing math and LaTeX files in genera
 
 ## Using the compiler
 
-A TexDown file can be compiled using the `compiler.py` script.
+A TexDown file can be compiled using the `texdown.py` script.
 
-In the same directory as the `interpreter.py`, `compiler.py` and `help.py` scripts, run
+In the same directory as the `interpreter.py`, `texdown.py` and `help.py` scripts, run
 
 ```cmd
-python compiler.py --help
+python texdown.py --help
 ```
 
 for more details.
