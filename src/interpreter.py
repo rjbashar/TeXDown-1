@@ -334,6 +334,7 @@ def makeBody(source):
         if inCodeEnv(match.end(0)):
             return match.group(0)
         out = r'''\begin{table}[hbpt]
+\centering
 \setlength{\tabcolsep}{10pt}
 \renewcommand{\arraystretch}{1.5}'''
 
