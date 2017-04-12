@@ -411,9 +411,9 @@ def makeBody(source):
         if inCodeEnv(match.end(0)):
             return match.group(0)
         out = '\\begin{figure}[hbpt]\n'
-        out += '\t\\includegraphics[width=\\textwidth,height=\\textheight,keepaspectratio]{{{}}}\n'.format(match.group(2))
-        out += '\t\\caption{{\n\t{}\n\t}}\n'.format(match.group(1))
-        out += '\t\\label{{ {} }}\n'.format(match.group(2))
+        out += '\\includegraphics[width=\\textwidth,height=\\textheight,keepaspectratio]{{{}}}\n'.format(match.group(2))
+        out += '\\caption{{ {} }}\n'.format(match.group(1))
+        out += '\\label{{ {} }}\n'.format(match.group(2))
         out += '\\end{figure}\n'
         return out
     clearSource = imageReg.sub(makeImgs, clearSource)
