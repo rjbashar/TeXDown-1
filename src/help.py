@@ -1,10 +1,10 @@
 # -*- coding:utf-8 -*-
 
 def shortHelp():
-     print 'texdown.py -i [--input=] inFile.txd [-o [--output=] outFile.tex] [-s [--silent]] [--no-cleanup] [--no-pdf]'
+     print 'texdown.py -i [--input=] inFile.txd [-o [--output=] outFile.tex] [-s [--silent]] [--no-cleanup] [--no-pdf] [--no-head]'
 
 def longHelp():
-    print '''python texdown.py -i [--input=] inFile.txd [-o [--output=] outFile.tex] [-s [--silent]] [--no-cleanup] [--no-pdf]
+    print '''python texdown.py -i [--input=] inFile.txd [-o [--output=] outFile.tex] [-s [--silent]] [--no-cleanup] [--no-pdf] [--no-head]
 
 Compiles a TeXDown file (.txd, .texd, .texdown) to a TeX file + PDF
 
@@ -28,4 +28,8 @@ No Cleanup [--no-cleanup]
     Prevents removal of .aux and .log files after compilation.
 
 No PDF [--no-pdf]
-    Does not produce PDF file from pdflatex after .tex compilation.'''
+    Does not produce PDF file from pdflatex after .tex compilation.
+
+No Head [--no-head]
+    Outputs content between \begin{document} and \end{document} only.
+'''

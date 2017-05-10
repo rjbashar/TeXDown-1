@@ -7,7 +7,7 @@ import subprocess
 from help import shortHelp,longHelp
 
 try:
-    opts, args = getopt.getopt(sys.argv[1:] ,"hi:o:s",["help","no-cleanup", "input=", "output=", "no-pdf", "silent"])
+    opts, args = getopt.getopt(sys.argv[1:] ,"hi:o:s",["help","no-cleanup", "input=", "output=", "no-pdf", "silent", "no-head"])
 except getopt.GetoptError as err:
     print err
     shortHelp()
@@ -18,6 +18,7 @@ outPath = ''
 noCleanup = False
 noPdf = False
 silent = False
+noHead = False
 for opt,arg in opts:
     if opt in ('-h', '--help'):
         longHelp()
@@ -32,6 +33,8 @@ for opt,arg in opts:
         noCleanup = True
     elif opt == '--no-pdf':
         noPdf = True
+    elif opt == '--no-head':
+        noHead = True
 
 if inFile == '':
     if len(args) > 0:
@@ -46,7 +49,7 @@ if outPath == '':
     if len(args) > 1:
         outPath = args[1]
     else:
-        outPath = inFile + '-compiled'
+        outPath = inFile + '-compiled' + ('-nohead' if noHead else '')
 
 # Replace all in/out paths '\' for '/'
 inFile = inFile.replace('\\', '/')
@@ -58,11 +61,12 @@ with open(inFile + inExtension) as sourceFile:
     print 'Outputting to ' + outPath + '.tex'
 
     with open(outPath + '.tex', 'w') as out:
-        out.write(interpreter.makeHeader(source))
-        out.write('\n')
+        if not noHead:
+            out.write(interpreter.makeHeader(source))
+            out.write('\n')
         out.write(interpreter.makeBody(source))
 
-    if not noPdf:
+    if not noHead and not noPdf:
         outDir = '' if outPath.rfind('/') < 0 else outPath[:outPath.rfind('/')+1]
         outName = outPath if outPath.rfind('/') < 0 else outPath[outPath.rfind('/')+1:]
         

@@ -239,7 +239,7 @@ def makeBody(source):
     # Replace all $$$ envs with equation environments
     #   and $$$* with equation* environements
     def returnEqEnv(match):
-        return '\\begin{{gather{star}}}\n{}\n\\end{{gather{star}}}'.format(
+        return '\\begin{{gather{star}}}\n{}\n\\end{{gather{star}}}\n'.format(
             '\\\\\n'.join(
                 map(lambda eq: ' '.join(eq.split('\n')), match.group(2).split('\n\n'))
             ).strip(),
