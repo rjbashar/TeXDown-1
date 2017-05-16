@@ -178,7 +178,6 @@ def makeHeader(source):
         addLine('')
         addLine(r'% Start of custom header contents')
         for match in headerContents:
-            print match
             addLine(match.strip())
         addLine(r'% End of custom header contents')
         addLine('')
@@ -257,7 +256,6 @@ def makeBody(source):
 
     # Define funciton to know if we're inside math env.
     def inMathEnv(pos):
-        print re.findall(r'\\begin\{gather\*?\}', clearSource[0:pos])
         if len(re.findall(r'\\begin\{gather\*?\}', clearSource[0:pos])) > len(re.findall(r'\\end\{gather\*?\}', clearSource[0:pos])):
             return True
         return False
