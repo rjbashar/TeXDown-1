@@ -7,8 +7,9 @@ commentsReg = re.compile(r' *?%.+(?:\n|$)')
 addToHeaderReg = re.compile(r'\[header\]\n((?:(?:\t| {4}).*(?:\n|$))+)', re.IGNORECASE | re.MULTILINE)
 metadataReg = re.compile(r'^\[(author|date|title): *(.+?)\](?:\n|$)', re.IGNORECASE | re.MULTILINE)
 macroTagReg = re.compile(r'^\[(?:macro|define): *(\w+?), *(.+?)\](?:\n|$)', re.MULTILINE|re.IGNORECASE)
-includeTagReg = re.compile(r'^\[include: *([\w\d]+)((?:, ?[\w\d]+)*?)\](?:\n|$)', re.MULTILINE)
-unincludeTagReg = re.compile(r'^\[(?:remove|uninclude): *([\w\d]+)\](?:\n|$)', re.MULTILINE)
+includeTagReg = re.compile(r'^\[include: *([\w\d]+)((?:, ?[\w\d]+)*?)\](?:\n|$)', re.IGNORECASE | re.MULTILINE)
+unincludeTagReg = re.compile(r'^\[(?:remove|uninclude): *([\w\d]+)\](?:\n|$)', re.IGNORECASE | re.MULTILINE)
+figPathTagReg = re.compile(r'^\[figpath: *([\w\d/\.]+)\](?:\n|$)', re.IGNORECASE | re.MULTILINE)
 
 theoremEnvReg = re.compile(r'\[(theorem|corollary|lemma|definition)(?:\:(.+?))*\]\n((?:(?:\t| {4}).*(?=\n|$))+)', re.IGNORECASE)
 codeEnvReg = re.compile(r'(```|~~~~)([\w\d]+)*\n(.*?)\n\1([^\n]+)*', re.DOTALL)
@@ -167,6 +168,10 @@ def makeHeader(source):
         addLine(r'\author{{{}}}'.format(author))
         addLine(r'\date{{{}}}'.format(date))
     
+    # Add graphixpath, if any
+    if imageReg.search(source) and figPathTagReg.search(source):
+        addLine(r'\graphicspath{{{{{}}}}}'.format(figPathTagReg.search(source).group(1)))
+
     # Look and add any custom header contents
     headerContents = addToHeaderReg.findall(source)
     if len(headerContents) > 0:
@@ -214,6 +219,9 @@ def makeBody(source):
     # Remove header tags
     clearSource = addToHeaderReg.sub('', clearSource)
 
+    # Remove figpath tags
+    clearSource = figPathTagReg.sub('', clearSource)
+
     # strip
     clearSource = clearSource.strip()
 
@@ -247,6 +255,13 @@ def makeBody(source):
         )
     clearSource = mathEnvReg.sub(returnEqEnv, clearSource)
 
+    # Define funciton to know if we're inside math env.
+    def inMathEnv(pos):
+        print re.findall(r'\\begin\{gather\*?\}', clearSource[0:pos])
+        if len(re.findall(r'\\begin\{gather\*?\}', clearSource[0:pos])) > len(re.findall(r'\\end\{gather\*?\}', clearSource[0:pos])):
+            return True
+        return False
+
     # Replace all theorem tags with theorem envs.
     # Matching order from leftmost assures correct theorem name order
     #   but I'd enjoy something cleaner, while still detatching
@@ -264,7 +279,7 @@ def makeBody(source):
     # Make emphasis, bolds, underline and crossed out
     def makeFormat(command):
         def subFormat(match):
-            if inCodeEnv(match.end(0)):
+            if inCodeEnv(match.end(0)) or inMathEnv(match.end(0)):
                return match.group(0) 
             return '\\{}{{{}}}'.format(command, match.group(2))
         return subFormat
