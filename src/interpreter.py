@@ -2,7 +2,7 @@
 
 import re
 
-commentsReg = re.compile(r'[^\\]%.+$', re.MULTILINE)
+commentsReg = re.compile(r'(?!\\)%.+$', re.MULTILINE)
 
 addToHeaderReg = re.compile(r'\[header\]\n((?:(?:\t| {4}).*(?:\n|$))+)', re.IGNORECASE | re.MULTILINE)
 metadataReg = re.compile(r'^\[(author|date|title): *(.+?)\](?:\n|$)', re.IGNORECASE | re.MULTILINE)
@@ -203,7 +203,11 @@ def makeBody(source):
     if metadataReg.search(source):
         addLine(r'\maketitle')
     
-    # "Clear" source copy without metadata tags
+    # "Clear" source copy without comments
+    #   Comments should arguably be kept, but they interfere w/ other (metadata) regex
+    clearSource = commentsReg.sub('', source)
+
+    # Remove metadata tags
     clearSource = metadataReg.sub('', source)
 
     # Remove macro tags
