@@ -44,7 +44,7 @@ blockquoteReg = re.compile(r'(?:^ *> *[^\n]+(?:\n|$))+', re.MULTILINE)
 centerEq = re.compile(r'^(?:\t| {4,})+(\$.+\$)$', re.MULTILINE)
 
 # Images
-imageReg = re.compile(r'^[ \t]*!\[(.+)\]\((.+)\)[ \t]*$', re.MULTILINE)
+imageReg = re.compile(r'^[ \t]*!\[((?:.|(?:\n(?:\t| {4,})))+)?\]\((.+)\)[ \t]*$', re.MULTILINE)
 
 def makeHeader(source):
     # Remove comments
@@ -424,9 +424,11 @@ def makeBody(source):
     def makeImgs(match):
         if inCodeEnv(match.end(0)):
             return match.group(0)
+        caption = '\n\t\t'.join(map(lambda x: x.strip(), match.group(1).split('\n')))
         out = '\\begin{figure}[hbpt]\n'
         out += '\\includegraphics[width=\\textwidth,height=\\textheight,keepaspectratio]{{{}}}\n'.format(match.group(2))
-        out += '\t\\caption{{{}}}\n'.format(match.group(1))
+        if len(match.group(1)) > 0:
+            out += '\t\\caption{{{}}}\n'.format(caption)
         out += '\t\\label{{{}}}\n'.format(match.group(2))
         out += '\\end{figure}\n'
         return out
