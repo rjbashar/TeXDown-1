@@ -2,7 +2,7 @@
 
 import re
 
-commentsReg = re.compile(r'(?!\\)%.+$', re.MULTILINE)
+commentsReg = re.compile(r' +(?!\\)%.+$', re.MULTILINE)
 
 addToHeaderReg = re.compile(r'\[header\]\n((?:(?:\t| {4}).*(?:\n|$))+)', re.IGNORECASE | re.MULTILINE)
 metadataReg = re.compile(r'^\[(author|date|title): *(.+?)\](?:\n|$)', re.IGNORECASE | re.MULTILINE)
@@ -208,7 +208,7 @@ def makeBody(source):
     clearSource = commentsReg.sub('', source)
 
     # Remove metadata tags
-    clearSource = metadataReg.sub('', source)
+    clearSource = metadataReg.sub('', clearSource)
 
     # Remove macro tags
     clearSource = macroTagReg.sub('', clearSource)
