@@ -2,7 +2,7 @@
 
 import re
 
-commentsReg = re.compile(r' *?%.+(?:\n|$)')
+commentsReg = re.compile(r'[^\\]%.+(?:\n|$)')
 
 addToHeaderReg = re.compile(r'\[header\]\n((?:(?:\t| {4}).*(?:\n|$))+)', re.IGNORECASE | re.MULTILINE)
 metadataReg = re.compile(r'^\[(author|date|title): *(.+?)\](?:\n|$)', re.IGNORECASE | re.MULTILINE)
