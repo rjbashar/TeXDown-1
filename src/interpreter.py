@@ -33,7 +33,7 @@ olistReg = re.compile(r'^(?:\d+\. *.+(?:\n|$)(?:(?:\t| {4}).+\n*)*)+', re.MULTIL
 hlineReg = re.compile(r'^-{3,}|\+{3,}|\*{3,}$', re.MULTILINE)
 
 # Markdown table regex
-prettyTableReg = re.compile(r'^\|\s*(.+)\n\s*\|(\s*[-:]+[-|\s:]*)\n((?:\s*\|.*(?:\n|$|\|))*)((?:.+(?:\n|$))+)?', re.MULTILINE)
+prettyTableReg = re.compile(r'^(?:(?:\t| {4,})+([a-zA-Z0-9_\-]+)\n)?\|\s*(.+)\n\s*\|(\s*[-:]+[-|\s:]*)\n((?:\s*\|.*(?:\n|$|\|))*)((?:.+(?:\n|$))+)?', re.MULTILINE)
 uglyTableReg = re.compile(r'^ *(\S.*\|.*)\n *([-:]+ *\|[-| :]*)\n((?:.*\|.*(?:\n|$))*)', re.MULTILINE)
 tableAlignReg = re.compile(r':?-{3,}:?')
 
@@ -358,7 +358,7 @@ def makeBody(source):
         out += '\n\\begin{tabulary}{\\textwidth}'
         
         # Get alignments
-        alignLine = match.group(2)
+        alignLine = match.group(3)
         alignmentsWithSeparator = re.search(r'\s*\|?(.+)\|?\s*', alignLine).group(1)
         alignments = {}
         columns = alignmentsWithSeparator.split('|')
@@ -377,7 +377,7 @@ def makeBody(source):
         out += '\n\\hline\n'
         
         # Create table "header"
-        header = match.group(1)
+        header = match.group(2)
         if header[0] == '|':
             header = header[1:]
         if header[-1] == '|':
@@ -387,7 +387,7 @@ def makeBody(source):
         out += ' & '.join(elems) + ' \\\\ \\hline \\hline\n'
 
         # Create actual table (skipping alignment lines)
-        for line in match.group(3).splitlines():
+        for line in match.group(4).splitlines():
             if line == '':
                 continue
             line = line.strip()
@@ -400,12 +400,12 @@ def makeBody(source):
             out += ' & '.join(elems) + ' \\\\ \\hline\n'
         
         # Find caption if available
-        caption = '\\caption{{\n{}}}\n'.format(match.group(4)) if match.group(4) is not None else ''
+        caption = '\\caption{{\n{}}}\n'.format(match.group(5)) if match.group(5) is not None else ''
 
         out += r'''\end{{tabulary}}
-{}\label{{table{}}}
+{}\label{{{}}}
 \end{{table}}
-'''.format(caption, makeTables.tableNumber)
+'''.format(caption, 'table' + makeTables.tableNumber if match.group(1) is None else match.group(1))
         makeTables.tableNumber += 1
         return out
     
