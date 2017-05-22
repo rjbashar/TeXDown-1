@@ -13,7 +13,7 @@ figPathTagReg = re.compile(r'^\[figpath: *([\w\d/\.]+)\](?:\n|$)', re.IGNORECASE
 
 theoremEnvReg = re.compile(r'\[(theorem|corollary|lemma|definition)(?:\:(.+?))*\]\n((?:(?:\t| {4}).*(?=\n|$))+)', re.IGNORECASE)
 codeEnvReg = re.compile(r'(```|~~~~)([\w\d]+)*\n(.*?)\n\1([^\n]+)*', re.DOTALL)
-mathEnvReg = re.compile(r'\$\$\$(\*)*(.*?)\$\$\$\*?', re.DOTALL)
+mathEnvReg = re.compile(r'\$\$\$(\*)*(.*?)\$\$\$\*?\n?', re.DOTALL)
 
 sectionReg = re.compile(r'^(#+)(\*)? *(.+)', re.MULTILINE)
 
@@ -44,7 +44,7 @@ blockquoteReg = re.compile(r'(?:^ *> *[^\n]+(?:\n|$))+', re.MULTILINE)
 centerEq = re.compile(r'^(?:\t| {4,})+(\$.+\$)$', re.MULTILINE)
 
 # Images
-imageReg = re.compile(r'^[ \t]*!\[((?:.|(?:\n(?:\t| {4,})))+)?\]\((.+)\)[ \t]*$', re.MULTILINE)
+imageReg = re.compile(r'^[ \t]*!\[((?:.|(?:\n(?:\t| {4,})))+)?\]\((.+)\)[ \t]*\n?$', re.MULTILINE)
 
 def makeHeader(source):
     # Remove comments
