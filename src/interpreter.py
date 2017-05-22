@@ -19,9 +19,9 @@ sectionReg = re.compile(r'^(#+)(\*)? *(.+)', re.MULTILINE)
 
 # These 3 could probably be fused and then get context from \1,
 #   but it's much safer to have reg #1 and #2 separated
-emphasisReg = re.compile(r'(\*|//) *((?:(?!\1).)+?) *\1(?!\1)')
-boldReg = re.compile(r'(\*\*) *((?:(?!\1).)+?) *\1')
-underlinedReg = re.compile(r'(__) *((?:(?!\1).)+?) *\1')
+emphasisReg = re.compile(r'(?<!\\)(\*|\/\/) *((?:(?!\1)(?:.|\n(?!\n)))+?) *(?<!\\)\1(?!\1)')
+boldReg = re.compile(r'(?<!\\)(\*\*) *((?:(?!\1)(?:.|\n(?!\n)))+?) *(?<!\\)\1')
+underlinedReg = re.compile(r'(?<!\\)(__) *((?:(?!\1)(?:.|\n(?!\n)))+?) *(?<!\\)\1')
 
 crossedReg = re.compile(r'(~{2,})(.+)\1')
 inlineCodeReg = re.compile(r'`(.*?)`')
