@@ -6,7 +6,7 @@ commentsReg = re.compile(r' +(?!\\)%.+$', re.MULTILINE)
 
 addToHeaderReg = re.compile(r'\[header\]\n((?:(?:\t| {4}).*(?:\n|$))+)', re.IGNORECASE | re.MULTILINE)
 metadataReg = re.compile(r'^\[(author|date|title): *(.+?)\](?:\n|$)', re.IGNORECASE | re.MULTILINE)
-macroTagReg = re.compile(r'^\[(?:macro|define): *(\w+?), *(.+?)\](?:\n|$)', re.MULTILINE|re.IGNORECASE)
+macroTagReg = re.compile(r'^\[(?:macro|define): *\\?(\w+?), *(.+?)\](?:\n|$)', re.MULTILINE|re.IGNORECASE)
 includeTagReg = re.compile(r'^\[include: *([\w\d]+)((?:, ?[\w\d]+)*?)\](?:\n|$)', re.IGNORECASE | re.MULTILINE)
 unincludeTagReg = re.compile(r'^\[(?:remove|uninclude): *([\w\d]+)\](?:\n|$)', re.IGNORECASE | re.MULTILINE)
 figPathTagReg = re.compile(r'^\[figpath: *([\w\d/\.]+)\](?:\n|$)', re.IGNORECASE | re.MULTILINE)
@@ -19,9 +19,9 @@ sectionReg = re.compile(r'^(#+)(\*)? *(.+)', re.MULTILINE)
 
 # These 3 could probably be fused and then get context from \1,
 #   but it's much safer to have reg #1 and #2 separated
-emphasisReg = re.compile(r'(?<!\\)(\*|\/\/) *((?:(?!\1)(?:.|\n(?!\n)))+?) *(?<!\\)\1(?!\1)')
-boldReg = re.compile(r'(?<!\\)(\*\*) *((?:(?!\1)(?:.|\n(?!\n)))+?) *(?<!\\)\1')
-underlinedReg = re.compile(r'(?<!\\)(__) *((?:(?!\1)(?:.|\n(?!\n)))+?) *(?<!\\)\1')
+emphasisReg = re.compile(r'(?<!\\)(\*|\/\/) *((?:(?!\1)(?:.|\\\n))+?) *(?<!\\)\1(?!\1)')
+boldReg = re.compile(r'(?<!\\)(\*\*) *((?:(?!\1)(?:.|\\\n))+?) *(?<!\\)\1')
+underlinedReg = re.compile(r'(?<!\\)(__) *((?:(?!\1)(?:.|\\\n))+?) *(?<!\\)\1')
 
 crossedReg = re.compile(r'(~{2,})(.+)\1')
 inlineCodeReg = re.compile(r'`(.*?)`')
@@ -91,7 +91,7 @@ def makeHeader(source):
         newLib = []
         newLib.append(tag[0])
         if tag[1] != '':
-            newLib += tag[1][1:].split(',')
+            newLib += map(lambda x: x.strip(), tag[1][1:].split(','))
         includedLibs.add(tuple(newLib))
     
     # If the code environment is used, include listings
@@ -135,6 +135,10 @@ def makeHeader(source):
             # Make macro
             addLine(r'\newcommand{{\{}}}[{}]{{{}}}'.format(macro[0], numberOfArgs, macro[1]))
     
+    # Set gather to a more readable spacing
+    addLine('')
+    addLine(r'\setlength{\jot}{8pt}')
+
     # Define theorems
     theorems = theoremEnvReg.findall(source)
     if len(theorems) > 0:
@@ -283,7 +287,7 @@ def makeBody(source):
         def subFormat(match):
             if inCodeEnv(match.end(0)) or inMathEnv(match.end(0)):
                return match.group(0) 
-            return '\\{}{{{}}}'.format(command, match.group(2))
+            return '\\{}{{{}}}'.format(command, match.group(2).replace('\\\n', '\n'))
         return subFormat
     clearSource = boldReg.sub(makeFormat('textbf'), clearSource)
     clearSource = emphasisReg.sub(makeFormat('emph'), clearSource)
@@ -405,7 +409,7 @@ def makeBody(source):
         out += r'''\end{{tabulary}}
 {}\label{{{}}}
 \end{{table}}
-'''.format(caption, 'table' + makeTables.tableNumber if match.group(1) is None else match.group(1))
+'''.format(caption, 'table' + str(makeTables.tableNumber) if match.group(1) is None else match.group(1))
         makeTables.tableNumber += 1
         return out
     
@@ -428,10 +432,11 @@ def makeBody(source):
     def makeImgs(match):
         if inCodeEnv(match.end(0)):
             return match.group(0)
-        caption = '\n\t\t'.join(map(lambda x: x.strip(), match.group(1).split('\n')))
+        if match.group(1) is not None:
+            caption = '\n\t\t'.join(map(lambda x: x.strip(), match.group(1).split('\n')))
         out = '\\begin{figure}[hbpt]\n'
         out += '\\includegraphics[width=\\textwidth,height=\\textheight,keepaspectratio]{{{}}}\n'.format(match.group(2))
-        if len(match.group(1)) > 0:
+        if match.group(1) is not None:
             out += '\t\\caption{{{}}}\n'.format(caption)
         out += '\t\\label{{{}}}\n'.format(match.group(2))
         out += '\\end{figure}\n'

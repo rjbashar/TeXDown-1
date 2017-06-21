@@ -86,7 +86,6 @@ with open(inFile + inExtension) as sourceFile:
             try:
                 cleanupName = outDir + outName
                 os.unlink(cleanupName + '.log')
-                os.unlink(cleanupName + '.aux')
             except Exception as err:
                 print 'Could not clean up: ' + str(err)
 
