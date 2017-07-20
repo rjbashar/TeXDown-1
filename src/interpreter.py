@@ -2,7 +2,7 @@
 
 import re
 
-commentsReg = re.compile(r' +(?!\\)%.+$', re.MULTILINE)
+commentsReg = re.compile(r'(.+?)?[ \t]*(?!\\)(%.+)')
 
 addToHeaderReg = re.compile(r'\[header\]\n((?:(?:\t| {4}).*(?:\n|$))+)', re.IGNORECASE | re.MULTILINE)
 metadataReg = re.compile(r'^\[(author|date|title): *(.+?)\](?:\n|$)', re.IGNORECASE | re.MULTILINE)
@@ -33,7 +33,7 @@ olistReg = re.compile(r'^(?:\d+\. *.+(?:\n|$)(?:(?:\t| {4}).+\n*)*)+', re.MULTIL
 hlineReg = re.compile(r'^-{3,}|\+{3,}|\*{3,}$', re.MULTILINE)
 
 # Markdown table regex
-prettyTableReg = re.compile(r'^(?:(?:\t| {4,})+([a-zA-Z0-9_\-]+)\n)?\|\s*(.+)\n\s*\|(\s*[-:]+[-|\s:]*)\n((?:\s*\|.*(?:\n|$|\|))*)((?:.+(?:\n|$))+)?', re.MULTILINE)
+prettyTableReg = re.compile(r'^(?:(?:\t| {4,})+([a-zA-Z0-9_\-:]+)\n)?\|\s*(.+)\n\s*\|(\s*[-:]+[-|\s:]*)\n((?:\s*\|.*(?:\n|$|\|))*)((?:.+(?:\n|$))+)?', re.MULTILINE)
 uglyTableReg = re.compile(r'^ *(\S.*\|.*)\n *([-:]+ *\|[-| :]*)\n((?:.*\|.*(?:\n|$))*)', re.MULTILINE)
 tableAlignReg = re.compile(r':?-{3,}:?')
 
@@ -47,8 +47,12 @@ centerEq = re.compile(r'^(?:\t| {4,})+(\$.+\$)$', re.MULTILINE)
 imageReg = re.compile(r'^[ \t]*!\[((?:.|(?:\n(?:\t| {4,})))+)?\]\((.+)\)[ \t]*\n?$', re.MULTILINE)
 
 def makeHeader(source):
-    # Remove comments
-    source = commentsReg.sub('', source)
+    # Separate comments
+    def splitComment(match):
+        if match.group(1) is None:
+            return match.group(2)
+        return match.group(2) + '\n' + match.group(1)
+    source = commentsReg.sub(splitComment, source)
 
     # Compiled tex string
     def addLine(*args):
@@ -66,7 +70,8 @@ def makeHeader(source):
         ('amsmath',),
         ('amsthm',),
         ('amssymb',),
-        ('tabulary',)
+        ('tabulary',),
+        ('lmodern',)
     }
 
     # MDTex files are always articles, as they're meant
@@ -207,9 +212,13 @@ def makeBody(source):
     if metadataReg.search(source):
         addLine(r'\maketitle')
     
-    # "Clear" source copy without comments
-    #   Comments should arguably be kept, but they interfere w/ other (metadata) regex
-    clearSource = commentsReg.sub('', source)
+    # Separate comments
+    def splitComment(match):
+        if match.group(1) is None:
+            return match.group(2)
+        # Comment \n text
+        return match.group(2) + '\n' + match.group(1)
+    clearSource = commentsReg.sub(splitComment, source)
 
     # Remove metadata tags
     clearSource = metadataReg.sub('', clearSource)

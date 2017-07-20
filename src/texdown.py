@@ -80,6 +80,7 @@ with open(inFile + inExtension) as sourceFile:
         retcode = proc.returncode
         if not retcode == 0:
             os.unlink(outPath + '.tex')
+            os.unlink(outPath + '.aux')
             raise ValueError('Error {} executing command: {}'.format(retcode, ' '.join(proc))) 
     
         if not noCleanup:

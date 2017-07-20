@@ -38,7 +38,7 @@ $$$
 
 Assim, obtém-se
 
-[lemma:Equação de onda what]
+[lemma:Equação de onda what] % PLZ WORK
     $$\ddpartial{\psi}{q_i} = \frac{1}{v^2} \ddpartial{\psi}{t}$$
 
 Mas isto $\neq \nabla^2 \psi = \frac{1}{v^2} \ddpartial{\psi}{t}$ ?

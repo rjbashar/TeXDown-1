@@ -1,10 +1,11 @@
 % Start of header.
 \documentclass{article}
-\usepackage[utf8]{inputenc}
-\usepackage{url}
+\usepackage{lmodern}
 \usepackage[T1]{fontenc}
+\usepackage{amsmath}
+\usepackage[utf8]{inputenc}
 \usepackage{amssymb}
-\usepackage[fleqn]{amsmath}
+\usepackage{tabulary}
 \usepackage{amsthm}
 
 \newcommand{\braces}[1]{\left ( #1 \right )}
@@ -13,6 +14,8 @@
 \newcommand{\position}[0]{\vec{r}}
 \newcommand{\velocity}[0]{\vec{v}}
 \newcommand{\versor}[1]{\hat{e_{#1}}}
+
+\setlength{\jot}{8pt}
 
 \newtheorem*{theorem0}{Equação de onda what}
 
@@ -52,6 +55,7 @@ Observando a 2ª derivada:
 
 Assim, obtém-se
 
+% PLZ WORK
 \begin{theorem0}
 \begin{center}
 $$\ddpartial{\psi}{q_i} = \frac{1}{v^2} \ddpartial{\psi}{t}$$

@@ -32,11 +32,12 @@
   + Pretty
     + With captions
 + Pure LaTeX
++ Images
 
 ## LaTeXDown doesn't yet do
 
 + Links
-+ Images
+~~+ Images~~
 
 ## Others
 
