@@ -795,5 +795,199 @@ For example:
 
 ---
 
+### Images
+
+Images can be included using the `graphicx` package:
+
+**TeXDown code:**
+
+<details>
+<summary>TeXDown Source</summary>
+
+```markdown
+
+Inline math:
+
+$\sqrt{a^2 + b^2} = c$
+
+Block math:
+
+$$ \nabla^2 \psi = \frac{1}{v^2} \frac{\partial^2 \psi}{\partial t^2} $$
+
+Multiple lines (numbered):
+
+$$$
+(x-1)^2 + y^2 = 1
+
+x^2 - 2x + 1 + y^2 = 1
+
+x^2 - 2x + y^2 = 0
+
+r^2 - 2r \cos \theta = 0
+
+r = 0 \lor r = 2 \cos \theta
+$$$
+
+Multiple lines (unnumbered):
+
+$$$*
+x^2 + (y-1)^2 = 1
+
+x^2 + y^2 -2y = 0
+
+r^2 - 2r \sin \theta = 0
+
+r = 0 \lor r = 2 \sin \theta
+$$$
+
+Braced equations:
+
+[braces]
+    x^2 + (y-1)^2 = 1
+    x^2 + y^2 -2y = 0
+    r^2 - 2r \sin \theta = 0
+    r = 0 \lor r = 2 \sin \theta
+
+```
+
+</details>
+
+**LaTeX output:**
+
+
+<details>
+<summary>TeX Output</summary>
+
+```tex
+
+% Start of header.
+\documentclass{article}
+\usepackage[utf8]{inputenc}
+\usepackage{url}
+\usepackage[T1]{fontenc}
+\usepackage{amssymb}
+\usepackage[fleqn]{amsmath}
+\usepackage{amsthm}
+% End of header
+% Start of body.
+
+\begin{document}
+
+Inline math:
+
+$\sqrt{a^2 + b^2} = c$
+
+Block math:
+
+$$ \nabla^2 \psi = \frac{1}{v^2} \frac{\partial^2 \psi}{\partial t^2} $$
+
+Multiple lines (numbered):
+
+\begin{gather}
+(x-1)^2 + y^2 = 1\\
+x^2 - 2x + 1 + y^2 = 1\\
+x^2 - 2x + y^2 = 0\\
+r^2 - 2r \cos \theta = 0\\
+r = 0 \lor r = 2 \cos \theta
+\end{gather}
+
+Multiple lines (unnumbered):
+
+\begin{gather*}
+x^2 + (y-1)^2 = 1\\
+x^2 + y^2 -2y = 0\\
+r^2 - 2r \sin \theta = 0\\
+r = 0 \lor r = 2 \sin \theta
+\end{gather*}
+
+Braced equations:
+
+\begin{empheq}[left=\empheqlbrace]{align}
+& x^2 + (y-1)^2 = 1\\
+& x^2 + y^2 -2y = 0\\
+& r^2 - 2r \sin \theta = 0\\
+& r = 0 \lor r = 2 \sin \theta
+\end{empheq}
+\end{document}
+% End of body.
+
+```
+
+</details>
+
+---
+
+### Images
+
+Images can be included using standard Markdown syntax.
+
+Images are automatically fit to the width of the page, as well as
+labeled (with `\label`) with the name of the file (without the extension).
+
+**TeXDown file:**
+
+<details>
+<summary>TeXDown Source</summary>
+
+(A folder named `figures` is in the same directory as
+the source file, and contains `graphA.png` and `graphB.png`.)
+
+```texdown
+[figpath:./figures/]
+
+![A caption.](graphA)
+
+![This figure has a longer caption
+    because a lot of the time, science documents
+    caption their figures with really long captions.](graphB)
+```
+
+</details>
+
+**LaTeX output:**
+
+<details>
+<summary>TeX Output</summary>
+
+```tex
+% Start of header.
+\documentclass{article}
+\usepackage{lmodern}
+\usepackage{graphicx}
+\usepackage[T1]{fontenc}
+\usepackage{amsmath}
+\usepackage[utf8]{inputenc}
+\usepackage{amssymb}
+\usepackage{tabulary}
+\usepackage{amsthm}
+
+\setlength{\jot}{8pt}
+\graphicspath{{./figures/}}
+% End of header
+% Start of body.
+
+\begin{document}
+
+\begin{figure}[hbpt]
+\includegraphics[width=\textwidth,height=\textheight,keepaspectratio]{graphA}
+	\caption{A caption.}
+	\label{graphA}
+\end{figure}
+
+\begin{figure}[hbpt]
+\includegraphics[width=\textwidth,height=\textheight,keepaspectratio]{graphB}
+	\caption{This figure has a longer caption
+		because a lot of the time, science documents
+		caption their figures with really long captions.}
+	\label{graphB}
+\end{figure}
+
+\end{document}
+% End of body.
+```
+
+</details>
+
+---
 
 [1]: https://github.com/adam-p/markdown-here/wiki/Markdown-Cheatsheet
