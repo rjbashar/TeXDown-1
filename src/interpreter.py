@@ -322,7 +322,9 @@ def makeBody(source):
 
         equations = []
         for equation in match.group(1).split('\n'):
-            equations.append( '& {}'.format(equation.strip()) )
+            if equation == '':
+                continue
+            equations.append( '& {}'.format(equation.strip()))
         result += '\\\\\n'.join(equations)
         
         result += '\n'
