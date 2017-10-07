@@ -46,6 +46,9 @@ centerEq = re.compile(r'^(?:\t| {4,})+(\$.+\$)$', re.MULTILINE)
 # Images
 imageReg = re.compile(r'^[ \t]*!\[((?:.|(?:\n(?:\t| {4,})))+)?\]\((.+)\)[ \t]*\n?$', re.MULTILINE)
 
+# Braces equation
+bracesReg = re.compile(r'\[braces\]\n((?:(?:\t| {4}).*(?:\n|$))+)', re.IGNORECASE | re.MULTILINE)
+
 def makeHeader(source):
     # Separate comments
     def splitComment(match):
@@ -74,8 +77,7 @@ def makeHeader(source):
         ('lmodern',)
     }
 
-    # MDTex files are always articles, as they're meant
-    #   to be notes.
+    # TeXDown files are always articles.
     addLine('\\documentclass{article}')
 
     # Check for user defined do not include packages
@@ -114,6 +116,10 @@ def makeHeader(source):
     # If images are used, include graphicx
     if imageReg.search(source):
         includedLibs.add(('graphicx',))
+    
+    # If braces are used, include empheq
+    if (bracesReg.search(source)):
+        includedLibs.add(('empheq',))
 
     # Make library includes
     for lib in includedLibs:
@@ -302,6 +308,29 @@ def makeBody(source):
     clearSource = emphasisReg.sub(makeFormat('emph'), clearSource)
     clearSource = underlinedReg.sub(makeFormat('underline'), clearSource)
     clearSource = crossedReg.sub(makeFormat('sout'), clearSource)
+
+    # Make brace environments
+    def makeBraces(match):
+        if inCodeEnv(match.end(0)):
+            return match.group(0)
+        
+        if match.group(1) is None:
+            return ''
+
+        result = r'\begin{empheq}[left=\empheqlbrace]{align}'
+        result += '\n'
+
+        equations = []
+        for equation in match.group(1).split('\n'):
+            equations.append( '& {}'.format(equation.strip()) )
+        result += '\\\\\n'.join(equations)
+        
+        result += '\n'
+        result += r'\end{empheq}'
+
+        return result
+
+    clearSource = bracesReg.sub(makeBraces, clearSource)
 
     # Make all (sub)*sections
     def makeSection(match):

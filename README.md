@@ -592,6 +592,8 @@ def longExample:
 Inline math, block math, and gathered formulas are suported,
 with or without numbering (using the `amsthm` package).
 
+Braced equations are also supported, using the `empheq` package.
+
 **TeXDown code:**
 
 <details>
@@ -632,6 +634,14 @@ r^2 - 2r \sin \theta = 0
 
 r = 0 \lor r = 2 \sin \theta
 $$$
+
+Braced equations:
+
+[braces]
+    x^2 + (y-1)^2 = 1
+    x^2 + y^2 -2y = 0
+    r^2 - 2r \sin \theta = 0
+    r = 0 \lor r = 2 \sin \theta
 
 ```
 
@@ -684,6 +694,15 @@ x^2 + y^2 -2y = 0\\
 r^2 - 2r \sin \theta = 0\\
 r = 0 \lor r = 2 \sin \theta
 \end{gather*}
+
+Braced equations:
+
+\begin{empheq}[left=\empheqlbrace]{align}
+& x^2 + (y-1)^2 = 1\\
+& x^2 + y^2 -2y = 0\\
+& r^2 - 2r \sin \theta = 0\\
+& r = 0 \lor r = 2 \sin \theta
+\end{empheq}
 \end{document}
 % End of body.
 
