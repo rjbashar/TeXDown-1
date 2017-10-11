@@ -33,7 +33,7 @@ olistReg = re.compile(r'^(?:\d+\. *.+(?:\n|$)(?:(?:\t| {4}).+\n*)*)+', re.MULTIL
 hlineReg = re.compile(r'^-{3,}|\+{3,}|\*{3,}$', re.MULTILINE)
 
 # Markdown table regex
-prettyTableReg = re.compile(r'^(?:(?:\t| {4,})+([a-zA-Z0-9_\-:]+)\n)?\|\s*(.+)\n\s*\|(\s*[-:]+[-|\s:]*)\n((?:\s*\|.*(?:\n|$|\|))*)((?:.+(?:\n|$))+)?', re.MULTILINE)
+prettyTableReg = re.compile(r'^(?:(?:\t| {4,})+([a-zA-Z0-9_\-:]+)\n)?\|\s*(.+)\n\s*\|(\s*[-:]+[-|\s:]*)\n((?:\s*\|.*(?:\n|$|\|))*)((?:(?:\t| {4}).+(?:\n|$))+)?', re.MULTILINE)
 uglyTableReg = re.compile(r'^ *(\S.*\|.*)\n *([-:]+ *\|[-| :]*)\n((?:.*\|.*(?:\n|$))*)', re.MULTILINE)
 tableAlignReg = re.compile(r':?-{3,}:?')
 
@@ -73,7 +73,6 @@ def makeHeader(source):
         ('amsmath',),
         ('amsthm',),
         ('amssymb',),
-        ('tabulary',),
         ('lmodern',)
     }
 
@@ -113,6 +112,10 @@ def makeHeader(source):
     if blockquoteReg.search(source):
         includedLibs.add(('csquotes',))
     
+    # If tables are used, include tabulary
+    if prettyTableReg.search(source) or uglyTableReg.search(source):
+        includedLibs.add(('tabulary',))
+    
     # If images are used, include graphicx
     if imageReg.search(source):
         includedLibs.add(('graphicx',))
@@ -120,6 +123,10 @@ def makeHeader(source):
     # If braces are used, include empheq
     if (bracesReg.search(source)):
         includedLibs.add(('empheq',))
+
+    # If minipages are used, include captionof
+    if source.find('\\begin{minipage}'):
+        includedLibs.add(('caption',))
 
     # Make library includes
     for lib in includedLibs:
@@ -262,6 +269,18 @@ def makeBody(source):
         if clearSource.count(r'\begin{lstlisting}', 0, pos) > clearSource.count(r'\end{lstlisting}', 0, pos):
             return True
         return False
+    
+    # Define function to know if we're inside minipage env.
+    def inMinipageEnv(pos):
+        if clearSource.count(r'\begin{minipage}', 0, pos) > clearSource.count(r'\end{minipage}', 0, pos):
+            return True
+        return False
+
+    # Define funciton to know if we're inside math env.
+    def inMathEnv(pos):
+        if len(re.findall(r'\\begin\{gather\*?\}', clearSource[0:pos])) > len(re.findall(r'\\end\{gather\*?\}', clearSource[0:pos])):
+            return True
+        return False
 
     # Make inline code
     clearSource = inlineCodeReg.sub(r'\\lstinline[columns=fixed]$\1$', clearSource)
@@ -276,12 +295,6 @@ def makeBody(source):
             star = '*' if match.group(1) is not None else ''
         )
     clearSource = mathEnvReg.sub(returnEqEnv, clearSource)
-
-    # Define funciton to know if we're inside math env.
-    def inMathEnv(pos):
-        if len(re.findall(r'\\begin\{gather\*?\}', clearSource[0:pos])) > len(re.findall(r'\\end\{gather\*?\}', clearSource[0:pos])):
-            return True
-        return False
 
     # Replace all theorem tags with theorem envs.
     # Matching order from leftmost assures correct theorem name order
@@ -317,7 +330,7 @@ def makeBody(source):
         if match.group(1) is None:
             return ''
 
-        result = r'\begin{empheq}[left=\empheqlbrace]{align}'
+        result = r'\begin{empheq}[left=\empheqlbrace\,]{align}'
         result += '\n'
 
         equations = []
@@ -328,7 +341,7 @@ def makeBody(source):
         result += '\\\\\n'.join(equations)
         
         result += '\n'
-        result += r'\end{empheq}'
+        result += '\\end{empheq}\n'
 
         return result
 
@@ -394,8 +407,12 @@ def makeBody(source):
     def makeTables(match):
         if inCodeEnv(match.end(0)):
             return match.group(0)
-        out = r'''\begin{table}[hbpt]
-\centering
+        out = ''
+
+        if not inMinipageEnv(match.end(0)):
+            out += '\\begin{table}[hbpt]\n'
+
+        out += r'''\centering
 \setlength{\tabcolsep}{10pt}
 \renewcommand{\arraystretch}{1.5}'''
 
@@ -446,8 +463,10 @@ def makeBody(source):
         # Find caption if available
         caption = '\\caption{{\n{}}}\n'.format(match.group(5)) if match.group(5) is not None else ''
 
-        out += r'''\end{{tabulary}}
-{}\label{{{}}}
+        out += '\\end{tabulary}\n'
+
+        if not inMinipageEnv(match.end(0)):
+            out += r'''{}\label{{{}}}
 \end{{table}}
 '''.format(caption, 'table' + str(makeTables.tableNumber) if match.group(1) is None else match.group(1))
         makeTables.tableNumber += 1
@@ -474,12 +493,26 @@ def makeBody(source):
             return match.group(0)
         if match.group(1) is not None:
             caption = '\n\t\t'.join(map(lambda x: x.strip(), match.group(1).split('\n')))
-        out = '\\begin{figure}[hbpt]\n'
+        out = ''
+        
+        if inMinipageEnv(match.end(0)):
+            out += '\t\\centering\n\t'
+        else:
+            out += '\\begin{figure}[hbpt]\n'
+        
         out += '\\includegraphics[width=\\textwidth,height=\\textheight,keepaspectratio]{{{}}}\n'.format(match.group(2))
+        
         if match.group(1) is not None:
-            out += '\t\\caption{{{}}}\n'.format(caption)
+            if inMinipageEnv(match.end(0)):
+                out += '\t\\captionof{{figure}}{{{}}}\n'.format(caption)
+            else:
+                out += '\t\\caption{{{}}}\n'.format(caption)
+        
+
         out += '\t\\label{{{}}}\n'.format(match.group(2))
-        out += '\\end{figure}\n'
+
+        if not inMinipageEnv(match.end(0)):
+            out += '\\end{figure}\n'
         return out
     clearSource = imageReg.sub(makeImgs, clearSource)
 

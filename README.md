@@ -65,11 +65,11 @@ As of the time of writing, TeXDown features:
   + Pretty
     + With captions
 + Pure LaTeX
++ Images
 
 and does not yet implement
 
 + Links
-+ Images
 
 These are always updated in the `todo.md` file.
 
@@ -786,128 +786,6 @@ For example:
     such that $a^2 + b^2 = c^2$
 \end{theorem3}
 
-\end{document}
-% End of body.
-
-```
-
-</details>
-
----
-
-### Images
-
-Images can be included using the `graphicx` package:
-
-**TeXDown code:**
-
-<details>
-<summary>TeXDown Source</summary>
-
-```markdown
-
-Inline math:
-
-$\sqrt{a^2 + b^2} = c$
-
-Block math:
-
-$$ \nabla^2 \psi = \frac{1}{v^2} \frac{\partial^2 \psi}{\partial t^2} $$
-
-Multiple lines (numbered):
-
-$$$
-(x-1)^2 + y^2 = 1
-
-x^2 - 2x + 1 + y^2 = 1
-
-x^2 - 2x + y^2 = 0
-
-r^2 - 2r \cos \theta = 0
-
-r = 0 \lor r = 2 \cos \theta
-$$$
-
-Multiple lines (unnumbered):
-
-$$$*
-x^2 + (y-1)^2 = 1
-
-x^2 + y^2 -2y = 0
-
-r^2 - 2r \sin \theta = 0
-
-r = 0 \lor r = 2 \sin \theta
-$$$
-
-Braced equations:
-
-[braces]
-    x^2 + (y-1)^2 = 1
-    x^2 + y^2 -2y = 0
-    r^2 - 2r \sin \theta = 0
-    r = 0 \lor r = 2 \sin \theta
-
-```
-
-</details>
-
-**LaTeX output:**
-
-
-<details>
-<summary>TeX Output</summary>
-
-```tex
-
-% Start of header.
-\documentclass{article}
-\usepackage[utf8]{inputenc}
-\usepackage{url}
-\usepackage[T1]{fontenc}
-\usepackage{amssymb}
-\usepackage[fleqn]{amsmath}
-\usepackage{amsthm}
-% End of header
-% Start of body.
-
-\begin{document}
-
-Inline math:
-
-$\sqrt{a^2 + b^2} = c$
-
-Block math:
-
-$$ \nabla^2 \psi = \frac{1}{v^2} \frac{\partial^2 \psi}{\partial t^2} $$
-
-Multiple lines (numbered):
-
-\begin{gather}
-(x-1)^2 + y^2 = 1\\
-x^2 - 2x + 1 + y^2 = 1\\
-x^2 - 2x + y^2 = 0\\
-r^2 - 2r \cos \theta = 0\\
-r = 0 \lor r = 2 \cos \theta
-\end{gather}
-
-Multiple lines (unnumbered):
-
-\begin{gather*}
-x^2 + (y-1)^2 = 1\\
-x^2 + y^2 -2y = 0\\
-r^2 - 2r \sin \theta = 0\\
-r = 0 \lor r = 2 \sin \theta
-\end{gather*}
-
-Braced equations:
-
-\begin{empheq}[left=\empheqlbrace]{align}
-& x^2 + (y-1)^2 = 1\\
-& x^2 + y^2 -2y = 0\\
-& r^2 - 2r \sin \theta = 0\\
-& r = 0 \lor r = 2 \sin \theta
-\end{empheq}
 \end{document}
 % End of body.
 
