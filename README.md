@@ -5,7 +5,7 @@
 TeXDown, as a set of three python scripts, `interpreter.py`, `texdown.py` and `help.py`,
 is a transpiler that converts markdown to LaTeX.
 
-As a languange, TeXDown intends to be a custom flavour of markdown, with fast notes
+As a languange, TeXDown intends to be a custom flavour of markdown, with simple documents
 and easy typing in mind, while still retaining LaTeX files' professional presentation.
 
 It obeys to most of the [github-flavoured markdown standards][1],
