@@ -1,9 +1,3 @@
-[author: Miguel Murça]
-[date: November 10, 2016]
-[macro:constant, \frac{1}{4 \pi \epsilon_0}]
-[macro:withArgs, \frac{#1}{#4}*#2 \cdot #2]
-[include:url]
-
 # This is a section
 
 [theorem:Pythagorean Theorem]
@@ -96,7 +90,7 @@ such as the paragraph space or $\textrm{inline math: }x^2$.
 
 1. A
 2. Really
-    Sexy
+    . Sexy
 3. Ordered
 4. List
 
@@ -122,3 +116,22 @@ Miguel Murça, creator of TeXDown, said
 > Here is a quote,
 > made using TeXDown.
 Truly words of wisdom.
+
+[author: Miguel Murça]
+[date: November 10, 2016]
+[macro:constant, \frac{1}{4 \pi \epsilon_0}]
+[macro:withArgs, \frac{#1}{#4}*#2 \cdot #2]
+[include:url]
+
+[figpath:./figures/] % Folder with images
+
+![An image caption](imageFileName)
+
+% Images side by side:
+
+\begin{minipage}[0.5\textwidth]
+    ![Caption 1](img1)
+\end{minipage}
+\begin{minipage}[0.5\textwidth]
+    ![Caption 2](img2)
+\end{minipage}

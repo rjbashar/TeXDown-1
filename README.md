@@ -77,7 +77,7 @@ These are always updated in the `todo.md` file.
 
 ## Example file
 
-An example file, `example.txd`, is provided, showing off all TeXDown's capabilities.
+An example file, `example.txd`, is provided, showing off most of TeXDown's capabilities.
 
 ---
 
@@ -802,6 +802,9 @@ Images can be included using standard Markdown syntax.
 Images are automatically fit to the width of the page, as well as
 labeled (with `\label`) with the name of the file (without the extension).
 
+The image tags are `minipage` aware, so that two (or more) figures can be shown
+side by side.
+
 **TeXDown file:**
 
 <details>
@@ -818,6 +821,13 @@ the source file, and contains `graphA.png` and `graphB.png`.)
 ![This figure has a longer caption
     because a lot of the time, science documents
     caption their figures with really long captions.](graphB)
+
+\begin{minipage}[0.5\textwidth]
+    ![Caption 1](img1)
+\end{minipage}
+\begin{minipage}[0.5\textwidth]
+    ![Caption 2](img2)
+\end{minipage}
 ```
 
 </details>
@@ -859,6 +869,21 @@ the source file, and contains `graphA.png` and `graphB.png`.)
 		caption their figures with really long captions.}
 	\label{graphB}
 \end{figure}
+
+\begin{minipage}[0.5\textwidth]
+	\centering
+	\includegraphics[width=\textwidth,height=\textheight,keepaspectratio]{img1}
+	\captionof{figure}{Caption 1}
+	\label{img1}
+
+\end{minipage}
+\begin{minipage}[0.5\textwidth]
+	\centering
+	\includegraphics[width=\textwidth,height=\textheight,keepaspectratio]{img2}
+	\captionof{figure}{Caption 2}
+	\label{img2}
+
+\end{minipage}
 
 \end{document}
 % End of body.
