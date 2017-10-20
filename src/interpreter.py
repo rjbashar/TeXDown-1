@@ -366,7 +366,7 @@ def makeBody(source):
     # Make lists
     def makeList(group, elemRegex):
         def makeGroupList(match):
-            if inCodeEnv(match.end(0)):
+            if inCodeEnv(match.end(0)) or inMathEnv(match.end(0)):
                 return match.group(0)
             output = ''
             curDepth = -1
@@ -401,7 +401,7 @@ def makeBody(source):
     clearSource = olistReg.sub(makeList('enumerate', r'(?:(?:\d+\.?)|[ \t])* *(.+)'), clearSource)
 
     # Make hotizontal line breaks
-    clearSource = hlineReg.sub(r'\\rule{\\textwidth}{0.4pt}', clearSource)
+    clearSource = hlineReg.sub(r'\\vspace{0.2mm}\\rule{\\textwidth}{0.4pt}\n\\vspace{0.2mm}', clearSource)
 
     # Make tables
     def makeTables(match):
@@ -410,14 +410,17 @@ def makeBody(source):
         out = ''
 
         if not inMinipageEnv(match.end(0)):
-            out += '\\begin{table}[hbpt]\n'
+            out += '\\begin{table}[hbpt]\n\\noindent\\makebox[\\textwidth]{\n'
 
         out += r'''\centering
 \setlength{\tabcolsep}{10pt}
 \renewcommand{\arraystretch}{1.5}'''
 
-        out += '\n\\begin{tabulary}{\\textwidth}'
-        
+        if inMinipageEnv(match.end(0)):
+            out += '\n\\begin{tabulary}{\\textwidth}'
+        else:
+            out += '\n\\begin{tabulary}{\\paperwidth}'
+
         # Get alignments
         alignLine = match.group(3)
         alignmentsWithSeparator = re.search(r'\s*\|?(.+)\|?\s*', alignLine).group(1)
@@ -466,7 +469,8 @@ def makeBody(source):
         out += '\\end{tabulary}\n'
 
         if not inMinipageEnv(match.end(0)):
-            out += r'''{}\label{{{}}}
+            out += r'''}
+{}\label{{{}}}
 \end{{table}}
 '''.format(caption, 'table' + str(makeTables.tableNumber) if match.group(1) is None else match.group(1))
         makeTables.tableNumber += 1
@@ -498,9 +502,9 @@ def makeBody(source):
         if inMinipageEnv(match.end(0)):
             out += '\t\\centering\n\t'
         else:
-            out += '\\begin{figure}[hbpt]\n'
+            out += '\\begin{figure}[hbtp]\n'
         
-        out += '\\includegraphics[width=\\textwidth,height=\\textheight,keepaspectratio]{{{}}}\n'.format(match.group(2))
+        out += '\\includegraphics[width=\\textwidth,keepaspectratio]{{{}}}\n'.format(match.group(2))
         
         if match.group(1) is not None:
             if inMinipageEnv(match.end(0)):
