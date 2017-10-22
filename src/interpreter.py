@@ -11,7 +11,7 @@ includeTagReg = re.compile(r'^\[include: *([\w\d]+)((?:, ?[\w\d]+)*?)\](?:\n|$)'
 unincludeTagReg = re.compile(r'^\[(?:remove|uninclude): *([\w\d]+)\](?:\n|$)', re.IGNORECASE | re.MULTILINE)
 figPathTagReg = re.compile(r'^\[figpath: *([\w\d/\.]+)\](?:\n|$)', re.IGNORECASE | re.MULTILINE)
 
-theoremEnvReg = re.compile(r'\[(theorem|corollary|lemma|definition)(?:\:(.+?))*\]\n((?:(?:\t| {4}).*(?=\n|$))+)', re.IGNORECASE)
+theoremEnvReg = re.compile(r'\[(theorem|corollary|lemma|definition)(?:\:(.+?))*\]\n((?:\n*(?:\t| {4,}).+)+)', re.IGNORECASE | re.MULTILINE)
 codeEnvReg = re.compile(r'(```|~~~~)([\w\d]+)*\n(.*?)\n\1([^\n]+)*', re.DOTALL)
 mathEnvReg = re.compile(r'\$\$\$(\*)*(.*?)\$\$\$\*?\n?', re.DOTALL)
 
@@ -307,7 +307,7 @@ def makeBody(source):
             return match.group(0)
         global theoremNumber
         theoremNumber += 1
-        return '\\begin{{theorem{}}}\n{}\n\\end{{theorem{}}}\n'.format(theoremNumber,match.group(3), theoremNumber)
+        return '\\begin{{theorem{}}}\n{}\n\\end{{theorem{}}}'.format(theoremNumber,match.group(3), theoremNumber)
     clearSource = theoremEnvReg.sub(replaceWithName, clearSource)
 
     # Make emphasis, bolds, underline and crossed out
