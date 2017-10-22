@@ -469,7 +469,7 @@ def makeBody(source):
         out += '\\end{tabulary}\n'
 
         if not inMinipageEnv(match.end(0)):
-            out += r'''}
+            out += r'''}}
 {}\label{{{}}}
 \end{{table}}
 '''.format(caption, 'table' + str(makeTables.tableNumber) if match.group(1) is None else match.group(1))
