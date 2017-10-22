@@ -10,7 +10,7 @@ and easy typing in mind, while still retaining LaTeX files' professional present
 
 It obeys to most of the [github-flavoured markdown standards][1],
 while including other elements
-(such as tab-to-center, easily gathered equations or macro defining tags), so that while it
+(such as easily gathered equations or macro defining tags), so that while it
 may serve as a Markdown-To-LaTeX transpiler, it can also go beyond standard Markdown
 capabilities and offer tools that help in writing math and LaTeX files in general.
 
