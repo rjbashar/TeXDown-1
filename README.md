@@ -419,32 +419,31 @@ More content.
 ```tex
 % Start of header.
 \documentclass{article}
-\usepackage[argument,argument]{packageName}
 \usepackage{lmodern}
 \usepackage[utf8]{inputenc}
 \usepackage{amsmath}
 \usepackage[T1]{fontenc}
+\usepackage[argument]{library}
 \usepackage{amssymb}
-\usepackage{listings}
 \usepackage{caption}
 \usepackage{amsthm}
 
 \setlength{\jot}{8pt}
 
-\title{My Title}
-\author{My Name}
-\date{The Date}
+\title{TeXDown Tests}
+\author{Miguel Murça}
+\date{}
 % End of header
 % Start of body.
 
 \begin{document}
 
 \maketitle
-\begin{lstlisting}[,caption=texdown]
+Content.
 
-Packages can at any point be included, with optional arguments, using:
+% Date is suppressed, but does not cause error!
 
-\end{lstlisting}
+More content.
 \end{document}
 % End of body.
 ```
