@@ -189,10 +189,15 @@ __underline__
 
 `Some inline code?`
 
-`` ``` ``python
+    `
+    `
+    `
+    python
 # SHOULD BE A COMMENT
 print 'This is some code'
-`` ``` ``
+    `
+    `
+    `
 
 Horizontal ruler:
 
