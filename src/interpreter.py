@@ -464,15 +464,21 @@ def makeBody(source):
             out += ' & '.join(elems) + ' \\\\ \\hline\n'
         
         # Find caption if available
-        caption = '\\caption{{\n{}}}\n'.format(match.group(5)) if match.group(5) is not None else ''
+        caption = ''
+        if match.group(5) is not None and match.group(5) != '':
+            caption = '\n\\caption{{{}}}'.format(('\n' + match.group(5)))
 
-        out += '\\end{tabulary}\n'
+        # Find label if available
+        label = '\n'
+        if match.group(1) is None or match.group(1) == '':
+            label += '\\label{{{}}}'.format('table' + str(makeTables.tableNumber))
+        else:
+            label += '\\label{{{}}}'.format(match.group(1))
+
+        out += '\\end{tabulary}'
 
         if not inMinipageEnv(match.end(0)):
-            out += r'''}}
-{}\label{{{}}}
-\end{{table}}
-'''.format(caption, 'table' + str(makeTables.tableNumber) if match.group(1) is None else match.group(1))
+            out += '\n}}{}{}\n\\end{{table}}\n'.format(caption, label)
         makeTables.tableNumber += 1
         return out
     
