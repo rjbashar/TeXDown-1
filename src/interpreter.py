@@ -24,7 +24,7 @@ boldReg = re.compile(r'(?<!\\)(\*\*) *((?:(?!\1)(?:.|\\\n))+?) *(?<!\\)\1')
 underlinedReg = re.compile(r'(?<!\\)(__) *((?:(?!\1)(?:.|\\\n))+?) *(?<!\\)\1')
 
 crossedReg = re.compile(r'(~{2,})(.+)\1')
-inlineCodeReg = re.compile(r'`(.*?)`')
+inlineCodeReg = re.compile(r'(?!``)`(.*?)`(?!``)')
 
 listTabSize = 4
 ulistReg = re.compile(r'^(?:([\*\-+.]) +.+(?:\n|$)(?:(?:\t| {4}).+\n*)*)+', re.MULTILINE)
