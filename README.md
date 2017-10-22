@@ -123,11 +123,15 @@ Some commonly used packages are already included.
 ```tex
 % Start of header.
 \documentclass{article}
-\usepackage{amssymb}
-\usepackage{url}
+\usepackage{lmodern}
 \usepackage[utf8]{inputenc}
-\usepackage[fleqn]{amsmath}
+\usepackage{amsmath}
+\usepackage[T1]{fontenc}
+\usepackage{amssymb}
+\usepackage{caption}
 \usepackage{amsthm}
+
+\setlength{\jot}{8pt}
 % End of header
 % Start of body.
 
@@ -185,10 +189,10 @@ __underline__
 
 `Some inline code?`
 
-    ```python
-    # SHOULD BE A COMMENT
-    print 'This is some code'
-    ```
+```python
+# SHOULD BE A COMMENT
+print 'This is some code'
+```
 
 Horizontal ruler:
 
@@ -240,14 +244,19 @@ Blockquotes are also supported:
 ```tex
 % Start of header.
 \documentclass{article}
-\usepackage{url}
+\usepackage{lmodern}
 \usepackage[utf8]{inputenc}
+\usepackage{amsmath}
+\usepackage[T1]{fontenc}
 \usepackage{amssymb}
 \usepackage[normalem]{ulem}
 \usepackage{listings}
+\usepackage{caption}
+\usepackage{tabulary}
 \usepackage{csquotes}
-\usepackage[fleqn]{amsmath}
 \usepackage{amsthm}
+
+\setlength{\jot}{8pt}
 % End of header
 % Start of body.
 
@@ -268,7 +277,7 @@ and this is still the same paragraph.
 
 \textbf{BOLD}
 
-\emph{emphasis} or \emph{italics (same as emphasis)}
+\emph{italics (same as emphasis)} or \emph{emphasis}
 
 \underline{underline}
 
@@ -276,7 +285,7 @@ and this is still the same paragraph.
 
 \sout{strikeout}
 
-\sout{strikeout w/ 2}
+\sout{strikeout w/ 2 tildes}
 
 \lstinline[columns=fixed]$Some inline code?$
 
@@ -287,11 +296,13 @@ print 'This is some code'
 
 Horizontal ruler:
 
-\rule{\textwidth}{0.4pt}
+\vspace{0.2mm}\rule{\textwidth}{0.4pt}
+\vspace{0.2mm}
 
 or
 
-\rule{\textwidth}{0.4pt}
+\vspace{0.2mm}\rule{\textwidth}{0.4pt}
+\vspace{0.2mm}
 
 \begin{itemize}
 \item An
@@ -301,8 +312,8 @@ or
 \item with
 \item sub
 \item items
-\item and
 \begin{itemize}
+\item and
 \item sub
 \item items
 \end{itemize}
@@ -318,33 +329,35 @@ or
 \item List
 \end{enumerate}
 
-\begin{table}[h!tpb]
-\begingroup
+\begin{table}[hbpt]
+\noindent\makebox[\textwidth]{
+\centering
 \setlength{\tabcolsep}{10pt}
 \renewcommand{\arraystretch}{1.5}
-\begin{tabular}{ |l|c|r|l| }
+\begin{tabulary}{\paperwidth}{ |L|C|R|L| }
 \hline
 Tables & Are & Cool \\ \hline \hline
 col 3 is & right-aligned & \$1600 \\ \hline
 col 2 is & centered & \$12 \\ \hline
 zebra stripes & are neat & \$1 \\ \hline
-\end{tabular}
+\end{tabulary}
+}
 \label{table1}
-\endgroup
 \end{table}
 
-\begin{table}[h!tpb]
-\begingroup
+\begin{table}[hbpt]
+\noindent\makebox[\textwidth]{
+\centering
 \setlength{\tabcolsep}{10pt}
 \renewcommand{\arraystretch}{1.5}
-\begin{tabular}{ |l|l|l| }
+\begin{tabulary}{\paperwidth}{ |L|L|L| }
 \hline
 \sout{Markdown} TeXDown & Less & Pretty \\ \hline \hline
 \emph{Still} & \lstinline[columns=fixed]$renders$ & \textbf{nicely} \\ \hline
 1 & 2 & 3 \\ \hline
-\end{tabular}
+\end{tabulary}
+}
 \label{table2}
-\endgroup
 \end{table}
 
 Blockquotes are also supported:
@@ -406,27 +419,32 @@ More content.
 ```tex
 % Start of header.
 \documentclass{article}
-\usepackage{url}
+\usepackage[argument,argument]{packageName}
+\usepackage{lmodern}
 \usepackage[utf8]{inputenc}
+\usepackage{amsmath}
+\usepackage[T1]{fontenc}
 \usepackage{amssymb}
-\usepackage[argument]{library}
-\usepackage[fleqn]{amsmath}
+\usepackage{listings}
+\usepackage{caption}
 \usepackage{amsthm}
 
-\title{TeXDown Tests}
-\author{Miguel Murça}
-\date{}
+\setlength{\jot}{8pt}
+
+\title{My Title}
+\author{My Name}
+\date{The Date}
 % End of header
 % Start of body.
 
 \begin{document}
 
 \maketitle
-Content.
+\begin{lstlisting}[,caption=texdown]
 
-% Date is suppressed, but does not cause error!
+Packages can at any point be included, with optional arguments, using:
 
-More content.
+\end{lstlisting}
 \end{document}
 % End of body.
 ```
@@ -471,14 +489,18 @@ They can include arguments, which are identified by `#number`:
 ```tex
 % Start of header.
 \documentclass{article}
-\usepackage{amssymb}
-\usepackage{url}
+\usepackage{lmodern}
 \usepackage[utf8]{inputenc}
-\usepackage[fleqn]{amsmath}
+\usepackage{amsmath}
+\usepackage[T1]{fontenc}
+\usepackage{amssymb}
+\usepackage{caption}
 \usepackage{amsthm}
 
 \newcommand{\myMacro}[0]{\LaTeX{} expanded content}
 \newcommand{\macroWithArg}[1]{my name is #1}
+
+\setlength{\jot}{8pt}
 % End of header
 % Start of body.
 
@@ -540,36 +562,43 @@ def longExample:
 ```tex
 % Start of header.
 \documentclass{article}
-\usepackage{url}
+\usepackage{lmodern}
 \usepackage[utf8]{inputenc}
+\usepackage{amsmath}
+\usepackage[T1]{fontenc}
 \usepackage{amssymb}
 \usepackage{listings}
-\usepackage[fleqn]{amsmath}
+\usepackage{caption}
+\usepackage{tabulary}
 \usepackage{amsthm}
+
+\setlength{\jot}{8pt}
 % End of header
 % Start of body.
 
 \begin{document}
 
-\begin{table}[h!tpb]
-\begingroup
+\begin{table}[hbpt]
+\noindent\makebox[\textwidth]{
+\centering
 \setlength{\tabcolsep}{10pt}
 \renewcommand{\arraystretch}{1.5}
-\begin{tabular}{ |l|c|r|l| }
+\begin{tabulary}{\paperwidth}{ |L|C|R|L| }
 \hline
 Tables & Are & Cool \\ \hline \hline
 col 3 is & right-aligned & \$1600 \\ \hline
 col 2 is & centered & \$12 \\ \hline
 zebra stripes & are neat & \$1 \\ \hline
-\end{tabular}
+\end{tabulary}
+}
+\caption{
+    Table caption
+}
 \label{table1}
-\caption{Table caption}
-\endgroup
 \end{table}
 
-\vspace{5mm}
-
 \begin{lstlisting}[language=python,caption=Code caption]
+
 myStr = 'example'
 def longExample:
     foo = input()
@@ -578,6 +607,7 @@ def longExample:
     for i in range(1,input()):
         pass
     # Long
+
 \end{lstlisting}
 \end{document}
 % End of body.
@@ -654,15 +684,18 @@ Braced equations:
 <summary>TeX Output</summary>
 
 ```tex
-
 % Start of header.
 \documentclass{article}
+\usepackage{lmodern}
 \usepackage[utf8]{inputenc}
-\usepackage{url}
+\usepackage{amsmath}
 \usepackage[T1]{fontenc}
 \usepackage{amssymb}
-\usepackage[fleqn]{amsmath}
+\usepackage{empheq}
+\usepackage{caption}
 \usepackage{amsthm}
+
+\setlength{\jot}{8pt}
 % End of header
 % Start of body.
 
@@ -697,15 +730,15 @@ r = 0 \lor r = 2 \sin \theta
 
 Braced equations:
 
-\begin{empheq}[left=\empheqlbrace]{align}
+\begin{empheq}[left=\empheqlbrace\,]{align}
 & x^2 + (y-1)^2 = 1\\
 & x^2 + y^2 -2y = 0\\
 & r^2 - 2r \sin \theta = 0\\
 & r = 0 \lor r = 2 \sin \theta
 \end{empheq}
+
 \end{document}
 % End of body.
-
 ```
 
 </details>
@@ -751,12 +784,15 @@ For example:
 ```tex
 % Start of header.
 \documentclass{article}
+\usepackage{lmodern}
 \usepackage[utf8]{inputenc}
-\usepackage{url}
+\usepackage{amsmath}
 \usepackage[T1]{fontenc}
 \usepackage{amssymb}
-\usepackage[fleqn]{amsmath}
+\usepackage{caption}
 \usepackage{amsthm}
+
+\setlength{\jot}{8pt}
 
 \newtheorem{theorem0}{Theorem}
 \newtheorem*{theorem1}{Name}
@@ -785,10 +821,8 @@ For example:
     A rectangle triangle of sides $a$, $b$ and $c$ must be
     such that $a^2 + b^2 = c^2$
 \end{theorem3}
-
 \end{document}
 % End of body.
-
 ```
 
 </details>
@@ -842,11 +876,11 @@ the source file, and contains `graphA.png` and `graphB.png`.)
 \documentclass{article}
 \usepackage{lmodern}
 \usepackage{graphicx}
-\usepackage[T1]{fontenc}
-\usepackage{amsmath}
 \usepackage[utf8]{inputenc}
+\usepackage{amsmath}
+\usepackage[T1]{fontenc}
 \usepackage{amssymb}
-\usepackage{tabulary}
+\usepackage{caption}
 \usepackage{amsthm}
 
 \setlength{\jot}{8pt}
@@ -856,14 +890,14 @@ the source file, and contains `graphA.png` and `graphB.png`.)
 
 \begin{document}
 
-\begin{figure}[hbpt]
-\includegraphics[width=\textwidth,height=\textheight,keepaspectratio]{graphA}
+\begin{figure}[hbtp]
+\includegraphics[width=\textwidth,keepaspectratio]{graphA}
 	\caption{A caption.}
 	\label{graphA}
 \end{figure}
 
-\begin{figure}[hbpt]
-\includegraphics[width=\textwidth,height=\textheight,keepaspectratio]{graphB}
+\begin{figure}[hbtp]
+\includegraphics[width=\textwidth,keepaspectratio]{graphB}
 	\caption{This figure has a longer caption
 		because a lot of the time, science documents
 		caption their figures with really long captions.}
@@ -872,19 +906,18 @@ the source file, and contains `graphA.png` and `graphB.png`.)
 
 \begin{minipage}[0.5\textwidth]
 	\centering
-	\includegraphics[width=\textwidth,height=\textheight,keepaspectratio]{img1}
+	\includegraphics[width=\textwidth,keepaspectratio]{img1}
 	\captionof{figure}{Caption 1}
 	\label{img1}
 
 \end{minipage}
 \begin{minipage}[0.5\textwidth]
 	\centering
-	\includegraphics[width=\textwidth,height=\textheight,keepaspectratio]{img2}
+	\includegraphics[width=\textwidth,keepaspectratio]{img2}
 	\captionof{figure}{Caption 2}
 	\label{img2}
 
 \end{minipage}
-
 \end{document}
 % End of body.
 ```
